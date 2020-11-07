@@ -1,0 +1,19 @@
+{
+  "name": "jiq",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "scripts": {
+    "watch": "tsc -w",
+    "build": "tsc",
+    "start": "node ./build"
+  },
+  "devDependencies": {
+    "@types/lodash": "^4.14.165",
+    "@types/node": "^14.14.6"
+  },
+  "dependencies": {
+    "lodash": "^4.17.20"
+  },
+  "bin": "./build/index.js"
+}
