@@ -5,137 +5,84 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const fs_1 = __importDefault(require("fs"));
-const os_1 = __importDefault(require("os"));
 const lodash_1 = __importDefault(require("lodash"));
-const stream_1 = require("stream");
-const argv = process.argv.splice(2);
-function stdWrite(items) {
-    const stream = new stream_1.Readable({
-        read(bits) {
-            if (!items.length) {
-                return this.push(null);
-            }
-            this.push(items.shift() + os_1.default.EOL);
+const commander_1 = require("commander");
+const path_1 = require("path");
+const query_1 = require("./query");
+const printer_1 = require("./printer");
+const os_1 = require("os");
+const validFileTypes = ["txt", "json", "yaml"];
+const getFileType = (filename) => {
+    switch (true) {
+        case commander_1.program.json:
+            return "json";
+        case commander_1.program.text:
+            return "txt";
+        case commander_1.program.yaml:
+            return "yaml";
+    }
+    if (filename) {
+        const ext = path_1.extname(filename).substr(1);
+        if (!validFileTypes.includes(ext)) {
+            throw new Error(`${ext} is not recognized format`);
         }
+        return ext;
+    }
+    return "txt";
+};
+const readStream = async () => {
+    let data = '';
+    process.stdin.on("data", (txt) => {
+        data += txt.toString();
     });
-    stream.on("error", (err) => {
+    return new Promise((resolve, reject) => {
+        process.stdin.on("end", () => {
+            resolve(data);
+        }).on("error", (err) => {
+            reject(err);
+        });
+    });
+};
+const convertTextToData = (content, fileType) => {
+    switch (fileType) {
+        case "json":
+            return JSON.parse(content);
+        case "yaml":
+            throw new Error("Not implemented yet");
+        case "txt":
+            return content.split(os_1.EOL);
+    }
+};
+const readContent = (filename, fileType, callback) => {
+    let content = '';
+    if (filename) {
+        content = fs_1.default.readFileSync(filename, "utf-8");
+        callback(convertTextToData(content, fileType));
+        return;
+    }
+    readStream().then((txt) => {
+        callback(convertTextToData(txt, fileType));
+    }).catch(err => {
         console.log(err.message);
     });
-    stream.pipe(process.stdout).on("error", (e) => {
-        console.log(e.message);
-    });
-}
-const parseCommand = (command) => {
-    if (!command) {
-        throw new Error('No a valid command found');
-    }
-    let out = '';
-    if (command[0] === '.') {
-        command = '$' + command;
-    }
-    for (let fn of command.split('|')) {
-        fn = fn.trim();
-        if (!fn) {
-            continue;
-        }
-        if (!out) {
-            out = fn;
-            continue;
-        }
-        if (fn[0] === '.' || fn[0] === '[') {
-            out += fn;
-            continue;
-        }
-        out = `${fn}(${out})`;
-    }
-    return out;
 };
-function run(command, $, _) {
-    const values = Object.values;
-    const keys = Object.keys;
-    Object.defineProperties(String.prototype, {
-        uppercase: {
-            get() {
-                return this.toUpperCase();
-            }
-        },
-        lowercase: {
-            get() {
-                return this.toLowerCase();
-            }
-        },
-        camelcase: {
-            get() {
-                return _.camelCase(this);
-            }
-        },
-        upperfirst: {
-            get() {
-                return _.upperFirst(this);
-            }
-        },
-        capitalize: {
-            get() {
-                return _.capitalize(this);
-            }
-        },
-        kebabcase: {
-            get() {
-                return _.kebabCase(this);
-            }
-        },
-        snakecase: {
-            get() {
-                return _.snakeCase(this);
-            }
-        },
-        limit: {
-            value(length, separator) {
-                return _.truncate(this, {
-                    length, separator
-                });
-            }
-        },
-        words: {
-            get() {
-                return _.words(this);
-            }
-        }
+function main(query, filename) {
+    let fileType = getFileType(filename);
+    query = query_1.parseCommand(query);
+    readContent(filename, fileType, (data) => {
+        printer_1.print(query_1.run(query, data, lodash_1.default), fileType, commander_1.program.save);
     });
-    Object.defineProperties(Array.prototype, {
-        first: {
-            get() {
-                return _.head(this);
-            }
-        },
-        last: {
-            get() {
-                return _.last(this);
-            }
-        },
-        nth: {
-            value(n) {
-                return _.nth(this, n);
-            }
-        }
-    });
-    print(eval(command));
 }
-function print(data) {
-    if (Array.isArray(data)) {
-        stdWrite(data);
-    }
-    else {
-        console.log(data);
-    }
-}
-(async function () {
-    'use strict';
-    let [command, filename] = argv;
-    command = parseCommand(command);
-    if (!filename) {
-        throw new Error('Filename not found');
-    }
-    const $ = JSON.parse(fs_1.default.readFileSync(filename, "utf-8"));
-    run(command, $, lodash_1.default);
-})();
+;
+commander_1.program.version("0.0.1");
+commander_1.program
+    .option('--json', 'JSON type')
+    .option('--text', 'Text type')
+    .option('--yaml', 'YAML type')
+    .option('--save <filename>', 'Filename to save')
+    .arguments(`<query> [filename]`)
+    .description(`'.name' package.json`)
+    .action((query, filename) => {
+    main(query, filename);
+});
+commander_1.program.parse(process.argv);
