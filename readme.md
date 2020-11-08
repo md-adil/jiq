@@ -117,7 +117,7 @@ Some built in helper function for array and string
 
 Getting 2 items from top
 
-    jiq '.keywords.head(2)' package.json --save deps.yaml
+    jiq '.keywords.head(2)' package.json
 
 output
 
