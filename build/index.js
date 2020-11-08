@@ -1,4 +1,4 @@
-#!/usr/bin/node
+#!/usr/bin/env node
 "use strict";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
@@ -75,7 +75,7 @@ function main(query, filename) {
     });
 }
 ;
-commander_1.program.version("0.0.1");
+commander_1.program.version("0.0.2");
 commander_1.program
     .option('--json', 'tell the program it\'s json content')
     .option('--text', 'tell the program it\'s text content')

@@ -1,4 +1,5 @@
-#!/usr/bin/node
+#!/usr/bin/env node
+
 import fs from "fs";
 import _ from "lodash";
 import { program } from "commander";
@@ -76,7 +77,7 @@ function main(query: string, filename?: string) {
     });
 };
 
-program.version("0.0.1");
+program.version("0.0.2");
 program
     .option('--json', 'tell the program it\'s json content')
     .option('--text', 'tell the program it\'s text content')
