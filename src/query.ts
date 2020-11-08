@@ -2,7 +2,7 @@ import { LoDashStatic } from "lodash";
 
 export const parseCommand = (command: string) => {
     let out = '';
-    if (command[0] === '.') {
+    if (command[0] === '.' || command[0] === '[') {
         command = '$' + command;
      }
     for (let fn of command.split('|')) {

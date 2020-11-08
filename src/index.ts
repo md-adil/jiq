@@ -77,7 +77,7 @@ function main(query: string, filename?: string) {
     });
 };
 
-program.version("0.0.2");
+program.version("0.0.3");
 program
     .option('--json', 'tell the program it\'s json content')
     .option('--text', 'tell the program it\'s text content')

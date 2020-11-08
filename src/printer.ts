@@ -28,6 +28,7 @@ function writeToFile(data: any, filename: string, fileType: FileType) {
     }
     if (fileType === "yaml") {
        writeFileSync(filename, YAML.stringify(data));
+       return;
     }
     let text = '';
     if (typeof data === "string" || typeof data === "number") {

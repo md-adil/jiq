@@ -75,7 +75,7 @@ function main(query, filename) {
     });
 }
 ;
-commander_1.program.version("0.0.2");
+commander_1.program.version("0.0.3");
 commander_1.program
     .option('--json', 'tell the program it\'s json content')
     .option('--text', 'tell the program it\'s text content')

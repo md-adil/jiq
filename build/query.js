@@ -3,7 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.run = exports.parseCommand = void 0;
 exports.parseCommand = (command) => {
     let out = '';
-    if (command[0] === '.') {
+    if (command[0] === '.' || command[0] === '[') {
         command = '$' + command;
     }
     for (let fn of command.split('|')) {
