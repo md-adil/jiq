@@ -2,11 +2,12 @@
 #### JSON querying with javascript and lodash
 
 ## Installation
-    npm -g install jiq
-or
-##
-    yarn global add jiq
 
+    npm -g install jiq
+
+or
+
+    yarn global add jiq
 
 > Concept: use existing javascript knowledge to query or mutate data
 
@@ -19,9 +20,11 @@ or
     curl https://api.github.com/users | jiq --json '.map(x => x.login)'
 
 ### Use Case
+
 We have a file
-##
+
     package.json
+
 ```json
 {
     "name": "jiq",
@@ -57,20 +60,21 @@ We have a file
     "bin": "./build/index.js"
 }
 ```
+
 Getting name property
 
     jiq '.name' package.json
-##
+
 output
 
     jiq
-##
+
 Getting all dependencies
 
     jiq '.dependencies' package.json
 
-##
 output
+
 ```json
 {
     "commander": "^6.2.0",
@@ -81,7 +85,6 @@ output
 
 Getting keys of dependencies object as an array with the help of pipes
 
-
     jiq '.dependencies|keys' package.json
 
 output
@@ -90,22 +93,20 @@ output
     lodash
     yaml
 
-##
 Chain with native javascript array functions on output array
 
-##
     jiq '.dependencies|keys|.map(v => v.uppercase)' package.json
-##
+
 output 
 
     COMMANDER
     LODASH
     YAML
-    
-##
+
 Save output to a file
 
     jiq '.dependencies|keys|.map(v => v.uppercase)' package.json --save deps.json
+
 or
 
     jiq '.dependencies|keys|.map(v => v.uppercase)' package.json --save deps.yaml
@@ -117,13 +118,14 @@ Some built in helper function for array and string
 Getting 2 items from top
 
     jiq '.keywords.head(2)' package.json --save deps.yaml
-##
+
 output
-##
+
     javascript inline query
     json query
 
 ### Using `$`
+
 `$` hold current parsed value object
 
     jiq '$' package.json --save package.yaml
@@ -131,32 +133,39 @@ output
 Successfully converted json to yaml
 
 ## Working on remote files using
+
     curl https://api.github.com/users | jiq --json '.map(x => x.login)'
+
 ### explained:
+
 * `curl <url>` to get data from remote
 * `jiq --json` to tell jiq the file content is json
 * `'.map(x => x.login)'` iterate over array, get the login key and build a new array on top of that.
-##
 
 ## Query with lodash
+
 Use `_` as global variable
 
     curl https://api.github.com/users | jiq --json '.map(x => x.login).map(_.upperFirst)'
 
 ## Supported data types
+
 * YAML
 * JSON
 * TEXT
 
 ### Pipes
-    keys
-    values
+
+* keys
+* values
 
 ### Globals
-    $ (passed data)
-    _ (lodash)
+
+* $ (passed data)
+* _ (lodash)
 
 ### String functions
+
 * uppercase
     `'.map(v => v.uppercase)'`
 * lowercase `.map(v => v.lowercase)`
@@ -169,6 +178,7 @@ Use `_` as global variable
 * words
 
 ### Array functions
+
 * first
 * last
 * head(x) get x values from top
