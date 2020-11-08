@@ -71,7 +71,12 @@ function main(query, filename) {
     let fileType = getFileType(filename);
     query = query_1.parseCommand(query);
     readContent(filename, fileType, (data) => {
-        printer_1.print(query_1.run(query, data, lodash_1.default), fileType, commander_1.program.save);
+        if (commander_1.program.save) {
+            printer_1.writeToFile(query_1.run(query, data, lodash_1.default), commander_1.program.save, fileType);
+        }
+        else {
+            printer_1.print(query_1.run(query, data, lodash_1.default), fileType, commander_1.program.print);
+        }
     });
 }
 ;
@@ -80,6 +85,7 @@ commander_1.program
     .option('--json', 'tell the program it\'s json content')
     .option('--text', 'tell the program it\'s text content')
     .option('--yaml', 'tell the program it\'s yaml content')
+    .option('--print <format>', 'printer format (table)')
     .option('--save <filename>', 'save output to a file')
     .arguments(`<query> [filename]`)
     .description(`'.name' package.json`)

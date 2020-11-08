@@ -5,7 +5,7 @@ import _ from "lodash";
 import { program } from "commander";
 import { extname } from "path";
 import { parseCommand, run } from "./query";
-import { print } from "./printer";
+import { print, writeToFile } from "./printer";
 import { EOL } from "os";
 import YAML from "yaml";
 
@@ -73,7 +73,11 @@ function main(query: string, filename?: string) {
     let fileType = getFileType(filename);
     query = parseCommand(query);
     readContent(filename, fileType, (data) => {
-        print(run(query, data, _), fileType, program.save);
+        if (program.save) {
+            writeToFile(run(query, data, _), program.save, fileType);
+        } else {
+            print(run(query, data, _), fileType, program.print);
+        }
     });
 };
 
@@ -82,6 +86,7 @@ program
     .option('--json', 'tell the program it\'s json content')
     .option('--text', 'tell the program it\'s text content')
     .option('--yaml', 'tell the program it\'s yaml content')
+    .option('--print <format>', 'printer format (table)')
     .option('--save <filename>', 'save output to a file')
     .arguments(`<query> [filename]`)
     .description(`'.name' package.json`)

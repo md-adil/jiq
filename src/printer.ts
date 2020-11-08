@@ -4,20 +4,22 @@ import { EOL } from "os";
 import type { FileType } from "./index";
 import { extname } from "path";
 import YAML from "yaml";
+import util from "util";
 
-export function print(data: any, fileType: FileType, filename?: string) {
-    if (filename) {
-        writeToFile(data, filename, fileType);
+export function print(data: any, fileType: FileType, printer?: string) {
+    if (printer === "table") {
+        console.table(data);
         return;
     }
-    if (Array.isArray(data)) {
-        writeToSTD(data);
+    if (fileType === "txt") {
+        writeToStdout(data);
         return;
     }
-    console.log(data);
+    process.stdout.write(util.inspect(data, false, null, true));
+    process.stdout.write(EOL);
 }
 
-function writeToFile(data: any, filename: string, fileType: FileType) {
+export function writeToFile(data: any, filename: string, fileType: FileType) {
     const ext = extname(filename);
     if (ext) {
         fileType = ext.substr(1) as FileType;
@@ -27,30 +29,28 @@ function writeToFile(data: any, filename: string, fileType: FileType) {
         return;
     }
     if (fileType === "yaml") {
-       writeFileSync(filename, YAML.stringify(data));
-       return;
+        writeFileSync(filename, YAML.stringify(data));
+        return;
     }
-    let text = '';
+    let text = "";
     if (typeof data === "string" || typeof data === "number") {
         text = String(data);
-    }
-    else if (Array.isArray(data) && data[0] && typeof data[0] === "string") {
+    } else if (Array.isArray(data) && data[0] && typeof data[0] === "string") {
         text = data.join(EOL);
-    }
-    else {
+    } else {
         text = JSON.stringify(data);
     }
     writeFileSync(filename, text);
 }
 
-function writeToSTD(items: (string|number)[]) {
+function writeToStdout(items: (string | number)[]) {
     const stream = new Readable({
         read(bits) {
             if (!items.length) {
-                return this.push(null)
+                return this.push(null);
             }
             this.push(items.shift() + EOL);
-        }
+        },
     });
     stream.on("error", (err) => {
         console.log(err.message);

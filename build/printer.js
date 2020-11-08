@@ -3,22 +3,24 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.print = void 0;
+exports.writeToFile = exports.print = void 0;
 const stream_1 = require("stream");
 const fs_1 = require("fs");
 const os_1 = require("os");
 const path_1 = require("path");
 const yaml_1 = __importDefault(require("yaml"));
-function print(data, fileType, filename) {
-    if (filename) {
-        writeToFile(data, filename, fileType);
+const util_1 = __importDefault(require("util"));
+function print(data, fileType, printer) {
+    if (printer === "table") {
+        console.table(data);
         return;
     }
-    if (Array.isArray(data)) {
-        writeToSTD(data);
+    if (fileType === "txt") {
+        writeToStdout(data);
         return;
     }
-    console.log(data);
+    process.stdout.write(util_1.default.inspect(data, false, null, true));
+    process.stdout.write(os_1.EOL);
 }
 exports.print = print;
 function writeToFile(data, filename, fileType) {
@@ -34,7 +36,7 @@ function writeToFile(data, filename, fileType) {
         fs_1.writeFileSync(filename, yaml_1.default.stringify(data));
         return;
     }
-    let text = '';
+    let text = "";
     if (typeof data === "string" || typeof data === "number") {
         text = String(data);
     }
@@ -46,14 +48,15 @@ function writeToFile(data, filename, fileType) {
     }
     fs_1.writeFileSync(filename, text);
 }
-function writeToSTD(items) {
+exports.writeToFile = writeToFile;
+function writeToStdout(items) {
     const stream = new stream_1.Readable({
         read(bits) {
             if (!items.length) {
                 return this.push(null);
             }
             this.push(items.shift() + os_1.EOL);
-        }
+        },
     });
     stream.on("error", (err) => {
         console.log(err.message);

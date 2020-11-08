@@ -124,6 +124,23 @@ output
     javascript inline query
     json query
 
+Printing in table format
+
+    jiq '.keywords' package.json --print table
+
+output
+
+    ┌─────────┬───────────────────────────┐
+    │ (index) │          Values           │
+    ├─────────┼───────────────────────────┤
+    │    0    │ 'javascript inline query' │
+    │    1    │       'json query'        │
+    │    2    │    'json inline query'    │
+    │    3    │          'json'           │
+    │    4    │          'yaml'           │
+    │    5    │          'query'          │
+    └─────────┴───────────────────────────┘
+
 ### Using `$`
 
 `$` hold current parsed value object
