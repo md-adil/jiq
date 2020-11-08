@@ -11,6 +11,7 @@ const path_1 = require("path");
 const query_1 = require("./query");
 const printer_1 = require("./printer");
 const os_1 = require("os");
+const yaml_1 = __importDefault(require("yaml"));
 const validFileTypes = ["txt", "json", "yaml"];
 const getFileType = (filename) => {
     switch (true) {
@@ -48,7 +49,7 @@ const convertTextToData = (content, fileType) => {
         case "json":
             return JSON.parse(content);
         case "yaml":
-            throw new Error("Not implemented yet");
+            return yaml_1.default.parse(content);
         case "txt":
             return content.split(os_1.EOL);
     }
@@ -76,10 +77,10 @@ function main(query, filename) {
 ;
 commander_1.program.version("0.0.1");
 commander_1.program
-    .option('--json', 'JSON type')
-    .option('--text', 'Text type')
-    .option('--yaml', 'YAML type')
-    .option('--save <filename>', 'Filename to save')
+    .option('--json', 'tell the program it\'s json content')
+    .option('--text', 'tell the program it\'s text content')
+    .option('--yaml', 'tell the program it\'s yaml content')
+    .option('--save <filename>', 'save output to a file')
     .arguments(`<query> [filename]`)
     .description(`'.name' package.json`)
     .action((query, filename) => {

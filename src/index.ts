@@ -6,6 +6,7 @@ import { extname } from "path";
 import { parseCommand, run } from "./query";
 import { print } from "./printer";
 import { EOL } from "os";
+import YAML from "yaml";
 
 const validFileTypes = [ "txt", "json", "yaml" ] as const;
 export type FileType = typeof validFileTypes[number];
@@ -47,7 +48,7 @@ const convertTextToData = (content: string, fileType: FileType) => {
         case "json":
             return JSON.parse(content);
         case "yaml":
-            throw new Error("Not implemented yet");
+            return YAML.parse(content);
         case "txt":
             return content.split(EOL);
     }
@@ -77,10 +78,10 @@ function main(query: string, filename?: string) {
 
 program.version("0.0.1");
 program
-    .option('--json', 'JSON type')
-    .option('--text', 'Text type')
-    .option('--yaml', 'YAML type')
-    .option('--save <filename>', 'Filename to save')
+    .option('--json', 'tell the program it\'s json content')
+    .option('--text', 'tell the program it\'s text content')
+    .option('--yaml', 'tell the program it\'s yaml content')
+    .option('--save <filename>', 'save output to a file')
     .arguments(`<query> [filename]`)
     .description(`'.name' package.json`)
     .action((query, filename) => {

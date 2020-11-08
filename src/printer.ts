@@ -1,8 +1,10 @@
 import { Readable } from "stream";
-import {writeFileSync} from "fs";
+import { writeFileSync } from "fs";
 import { EOL } from "os";
 import type { FileType } from "./index";
 import { extname } from "path";
+import YAML from "yaml";
+
 export function print(data: any, fileType: FileType, filename?: string) {
     if (filename) {
         writeToFile(data, filename, fileType);
@@ -25,7 +27,7 @@ function writeToFile(data: any, filename: string, fileType: FileType) {
         return;
     }
     if (fileType === "yaml") {
-       throw new Error('Not implemented yet.');
+       writeFileSync(filename, YAML.stringify(data));
     }
     let text = '';
     if (typeof data === "string" || typeof data === "number") {

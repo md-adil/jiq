@@ -88,6 +88,16 @@ export const run = (command: string, $: any, _: LoDashStatic) => {
                 return _.last(this);
             }
         },
+        head: {
+            value(length: number) {
+                return _.take(this, length)
+            }
+        },
+        tail: {
+            value(length: number) {
+                return this.slice(this.length - length);
+            }
+        },
         nth: {
             value(n: number) {
                 return _.nth(this, n);

@@ -86,6 +86,16 @@ exports.run = (command, $, _) => {
                 return _.last(this);
             }
         },
+        head: {
+            value(length) {
+                return _.take(this, length);
+            }
+        },
+        tail: {
+            value(length) {
+                return this.slice(this.length - length);
+            }
+        },
         nth: {
             value(n) {
                 return _.nth(this, n);

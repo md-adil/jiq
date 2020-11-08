@@ -1,7 +1,19 @@
 {
     "name": "jiq",
     "version": "0.0.1",
+    "description": "Use existing javascript knowledge to query or mutate data",
+    "keywords": ["javascript inline query", "json query", "json inline query", "json", "yaml", "query"],
     "main": "build/index.js",
+    "author": {
+        "name": "Adil",
+        "email": "adil.sudo@gmail.com",
+        "url": "https://md-adil.github.io"
+    },
+    "homepage": "https://md-adil.github.io/jiq/",
+    "repository": {
+        "url": "https://md-adil.github.io/jiq/",
+        "type": "git"
+    },
     "license": "MIT",
     "scripts": {
         "watch": "tsc -w",
@@ -14,7 +26,8 @@
     },
     "dependencies": {
         "commander": "^6.2.0",
-        "lodash": "^4.17.20"
+        "lodash": "^4.17.20",
+        "yaml": "^1.10.0"
     },
     "bin": "./build/index.js"
 }

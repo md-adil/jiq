@@ -1,10 +1,14 @@
 "use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.print = void 0;
 const stream_1 = require("stream");
 const fs_1 = require("fs");
 const os_1 = require("os");
 const path_1 = require("path");
+const yaml_1 = __importDefault(require("yaml"));
 function print(data, fileType, filename) {
     if (filename) {
         writeToFile(data, filename, fileType);
@@ -27,7 +31,7 @@ function writeToFile(data, filename, fileType) {
         return;
     }
     if (fileType === "yaml") {
-        throw new Error('Not implemented yet.');
+        fs_1.writeFileSync(filename, yaml_1.default.stringify(data));
     }
     let text = '';
     if (typeof data === "string" || typeof data === "number") {
