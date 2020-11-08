@@ -8,8 +8,9 @@ import { parseCommand, run } from "./query";
 import { print, writeToFile } from "./printer";
 import { EOL } from "os";
 import YAML from "yaml";
+import csv from "csv-parse/lib/sync";
 
-const validFileTypes = [ "txt", "json", "yaml" ] as const;
+const validFileTypes = [ "txt", "json", "yaml", "csv" ] as const;
 export type FileType = typeof validFileTypes[number];
 const getFileType = (filename?: string): FileType => {
     switch(true) {
@@ -19,6 +20,8 @@ const getFileType = (filename?: string): FileType => {
             return "txt";
         case program.yaml:
             return "yaml";
+        case program.csv:
+            return "csv";
     }
     if (filename) {
         const ext = extname(filename).substr(1);
@@ -50,6 +53,11 @@ const convertTextToData = (content: string, fileType: FileType) => {
             return JSON.parse(content);
         case "yaml":
             return YAML.parse(content);
+        case "csv":
+            return csv(content, {
+                columns: true,
+                skipEmptyLines: true
+            });
         case "txt":
             return content.split(EOL);
     }

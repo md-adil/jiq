@@ -12,7 +12,8 @@ const query_1 = require("./query");
 const printer_1 = require("./printer");
 const os_1 = require("os");
 const yaml_1 = __importDefault(require("yaml"));
-const validFileTypes = ["txt", "json", "yaml"];
+const sync_1 = __importDefault(require("csv-parse/lib/sync"));
+const validFileTypes = ["txt", "json", "yaml", "csv"];
 const getFileType = (filename) => {
     switch (true) {
         case commander_1.program.json:
@@ -21,6 +22,8 @@ const getFileType = (filename) => {
             return "txt";
         case commander_1.program.yaml:
             return "yaml";
+        case commander_1.program.csv:
+            return "csv";
     }
     if (filename) {
         const ext = path_1.extname(filename).substr(1);
@@ -50,6 +53,11 @@ const convertTextToData = (content, fileType) => {
             return JSON.parse(content);
         case "yaml":
             return yaml_1.default.parse(content);
+        case "csv":
+            return sync_1.default(content, {
+                columns: true,
+                skipEmptyLines: true
+            });
         case "txt":
             return content.split(os_1.EOL);
     }

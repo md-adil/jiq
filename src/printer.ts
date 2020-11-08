@@ -11,6 +11,20 @@ export function print(data: any, fileType: FileType, printer?: string) {
         console.table(data);
         return;
     }
+    if (printer === "json") {
+        process.stdout.write(util.inspect(data, false, null, true));
+        process.stdout.write(EOL);
+        return;
+    }
+    if (printer === "yaml") {
+        process.stdout.write(YAML.stringify(data));
+        process.stdout.write(EOL);
+        return;
+    }
+    if (fileType === "csv") {
+        console.table(data);
+        return;
+    }
     if (fileType === "txt") {
         writeToStdout(data);
         return;

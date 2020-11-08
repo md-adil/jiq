@@ -15,6 +15,20 @@ function print(data, fileType, printer) {
         console.table(data);
         return;
     }
+    if (printer === "json") {
+        process.stdout.write(util_1.default.inspect(data, false, null, true));
+        process.stdout.write(os_1.EOL);
+        return;
+    }
+    if (printer === "yaml") {
+        process.stdout.write(yaml_1.default.stringify(data));
+        process.stdout.write(os_1.EOL);
+        return;
+    }
+    if (fileType === "csv") {
+        console.table(data);
+        return;
+    }
     if (fileType === "txt") {
         writeToStdout(data);
         return;

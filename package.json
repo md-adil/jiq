@@ -33,6 +33,7 @@
     },
     "dependencies": {
         "commander": "^6.2.0",
+        "csv-parse": "^4.14.0",
         "lodash": "^4.17.20",
         "yaml": "^1.10.0"
     },
