@@ -1,6 +1,8 @@
 # Javascript Inline Query (jiq)
 #### JSON querying with javascript and lodash
 
+![](./assets/demo-1.gif)
+
 ## Installation
 
     npm -g install jiq
@@ -151,7 +153,7 @@ Successfully converted json to yaml
 
 ## Working on remote files using
 
-    curl https://api.github.com/users | jiq --json '.map(x => x.login)'
+    curl https://api.github.com/users -q | jiq --json '.pick("login", "id")' --print table
 
 ### explained:
 
@@ -201,5 +203,6 @@ Use `_` as global variable
 * head(x) get x values from top
 * tail(x) get x values from bottom
 * nth(x) get x position eg: nth(-2) second last item
+* pick(a, b, ...) iterate over array get key from array
 
 Read full [documentation](https://md-adil.github.io/jiq/) here.
