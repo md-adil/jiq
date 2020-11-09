@@ -100,6 +100,11 @@ exports.run = (command, $, _) => {
             value(n) {
                 return _.nth(this, n);
             }
+        },
+        pick: {
+            value(...args) {
+                return this.map((item) => _.pick(item, args));
+            }
         }
     });
     return eval(command);

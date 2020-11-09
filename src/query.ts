@@ -102,6 +102,11 @@ export const run = (command: string, $: any, _: LoDashStatic) => {
             value(n: number) {
                 return _.nth(this, n);
             }
+        },
+        pick: {
+            value(...args: string[]) {
+                return this.map((item: any) => _.pick(item, args));
+            }
         }
     })
     return eval(command);
