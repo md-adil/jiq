@@ -204,5 +204,6 @@ Use `_` as global variable
 * tail(x) get x values from bottom
 * nth(x) get x position eg: nth(-2) second last item
 * pick(a, b, ...) iterate over array get key from array
+* except(a, b, ...) reverse of pick
 
 Read full [documentation](https://md-adil.github.io/jiq/) here.

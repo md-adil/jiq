@@ -1,6 +1,7 @@
-import { LoDashStatic } from "lodash";
+import lodash, { LoDashStatic } from "lodash";
+import cheerio from "cheerio";
 
-export const parseCommand = (command: string) => {
+export const build = (command: string) => {
     let out = '';
     if (command[0] === '.' || command[0] === '[') {
         command = '$' + command;
@@ -24,7 +25,9 @@ export const parseCommand = (command: string) => {
     return out;
 }
 
-export const run = (command: string, $: any, _: LoDashStatic) => {
+export const run = (command: string, $: any ) => {
+    'use string';
+    const _ = lodash;
     const values = Object.values;
     const keys = Object.keys;
     Object.defineProperties(String.prototype, {
@@ -107,7 +110,25 @@ export const run = (command: string, $: any, _: LoDashStatic) => {
             value(...args: string[]) {
                 return this.map((item: any) => _.pick(item, args));
             }
+        },
+        except: {
+            value(...args: string[]) {
+                return this.map((item: any) => _.omit(item, ...args));
+            }
         }
-    })
+    });
+
+    
+    // cheerio.prototype.pick = function pick(...args: any) {
+    //     const $ = this;
+    //     if (args.length === 1) {
+    //         if (typeof args[0] === 'string') {
+    //             const [ tag, attr ] = args[0].split(':');
+    //             return this.map(function(i: number, x: any) {
+    //                return $.find.bind(x)(tag).attr("href");
+    //             });
+    //         }
+    //     }
+    // }
     return eval(command);
 }

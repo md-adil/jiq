@@ -1,60 +1,50 @@
 import { Readable } from "stream";
-import { writeFileSync } from "fs";
 import { EOL } from "os";
-import type { FileType } from "./index";
-import { extname } from "path";
 import YAML from "yaml";
 import util from "util";
+import type { FileType } from "./file";
+import XML from "fast-xml-parser";
 
-export function print(data: any, fileType: FileType, printer?: string) {
-    if (printer === "table") {
-        console.table(data);
-        return;
+const validPrinters = [ "json", "table", "txt", "yaml", "xml" ] as const;
+export type PrinterTypes = typeof validPrinters[number];
+
+export function print(data: any, fileType: FileType, printer?: PrinterTypes): void {
+    if (printer && !validPrinters.includes(printer)) {
+        throw new Error(`${printer} is invalid printer, valid printers are ( ${validPrinters.join(' / ')} )`);
     }
-    if (printer === "json") {
-        process.stdout.write(util.inspect(data, false, null, true));
-        process.stdout.write(EOL);
-        return;
+    switch(printer) {
+        case "table":
+            return console.table(data);
+        case "json":
+            process.stdout.write(util.inspect(data, false, null, true));
+            process.stdout.write(EOL);
+            return;
+        case "yaml":
+            process.stdout.write(YAML.stringify(data));
+            process.stdout.write(EOL);
+            return;
+        case "xml":
+            return printXML(data);
+        case "txt":
+            return writeToStdout(data);
     }
-    if (printer === "yaml") {
-        process.stdout.write(YAML.stringify(data));
-        process.stdout.write(EOL);
-        return;
+
+    switch(fileType) {
+        case "csv":
+            return console.table(data);
+        case "json":
+            process.stdout.write(util.inspect(data, false, null, true));
+            process.stdout.write(EOL);
+            return;
+        case "txt":
+            return writeToStdout(data);
     }
-    if (fileType === "csv") {
-        console.table(data);
-        return;
-    }
-    if (fileType === "txt") {
-        writeToStdout(data);
-        return;
-    }
-    process.stdout.write(util.inspect(data, false, null, true));
-    process.stdout.write(EOL);
+    console.log(data);
 }
 
-export function writeToFile(data: any, filename: string, fileType: FileType) {
-    const ext = extname(filename);
-    if (ext) {
-        fileType = ext.substr(1) as FileType;
-    }
-    if (fileType === "json") {
-        writeFileSync(filename, JSON.stringify(data, null, 4));
-        return;
-    }
-    if (fileType === "yaml") {
-        writeFileSync(filename, YAML.stringify(data));
-        return;
-    }
-    let text = "";
-    if (typeof data === "string" || typeof data === "number") {
-        text = String(data);
-    } else if (Array.isArray(data) && data[0] && typeof data[0] === "string") {
-        text = data.join(EOL);
-    } else {
-        text = JSON.stringify(data);
-    }
-    writeFileSync(filename, text);
+const printXML = (data: any) => {
+    const parser = new XML.j2xParser({ ignoreAttributes: false });
+    console.log(parser.parse(data));
 }
 
 function writeToStdout(items: (string | number)[]) {

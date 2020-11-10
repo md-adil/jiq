@@ -1,7 +1,11 @@
 "use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.run = exports.parseCommand = void 0;
-exports.parseCommand = (command) => {
+exports.run = exports.build = void 0;
+const lodash_1 = __importDefault(require("lodash"));
+exports.build = (command) => {
     let out = '';
     if (command[0] === '.' || command[0] === '[') {
         command = '$' + command;
@@ -23,7 +27,9 @@ exports.parseCommand = (command) => {
     }
     return out;
 };
-exports.run = (command, $, _) => {
+exports.run = (command, $) => {
+    'use string';
+    const _ = lodash_1.default;
     const values = Object.values;
     const keys = Object.keys;
     Object.defineProperties(String.prototype, {
@@ -105,7 +111,23 @@ exports.run = (command, $, _) => {
             value(...args) {
                 return this.map((item) => _.pick(item, args));
             }
+        },
+        except: {
+            value(...args) {
+                return this.map((item) => _.omit(item, ...args));
+            }
         }
     });
+    // cheerio.prototype.pick = function pick(...args: any) {
+    //     const $ = this;
+    //     if (args.length === 1) {
+    //         if (typeof args[0] === 'string') {
+    //             const [ tag, attr ] = args[0].split(':');
+    //             return this.map(function(i: number, x: any) {
+    //                return $.find.bind(x)(tag).attr("href");
+    //             });
+    //         }
+    //     }
+    // }
     return eval(command);
 };
