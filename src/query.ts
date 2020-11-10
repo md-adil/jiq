@@ -1,5 +1,5 @@
 import lodash, { LoDashStatic } from "lodash";
-import cheerio from "cheerio";
+import cast from "./cast";
 
 export const build = (command: string) => {
     let out = '';
@@ -107,28 +107,30 @@ export const run = (command: string, $: any ) => {
             }
         },
         pick: {
-            value(...args: string[]) {
-                return this.map((item: any) => _.pick(item, args));
+            value(...args: string[] | Record<string, string>[]) {
+                if (typeof args[0] === "string") {
+                    return this.map((item: any) => _.pick(item, args as string[]));
+                }
+                const picker = args[0] as any;
+                return this.map((item: any) => {
+                    const result: any = {};
+                    for(const i in picker) {
+                        result[i] = _.get(item, picker[i]);
+                    }
+                    return result;
+                });
             }
         },
         except: {
             value(...args: string[]) {
                 return this.map((item: any) => _.omit(item, ...args));
             }
+        },
+        cast: {
+            value(key: any, castTo?: any) {
+                return this.map((item: any) => cast(item, key, castTo))
+            }
         }
     });
-
-    
-    // cheerio.prototype.pick = function pick(...args: any) {
-    //     const $ = this;
-    //     if (args.length === 1) {
-    //         if (typeof args[0] === 'string') {
-    //             const [ tag, attr ] = args[0].split(':');
-    //             return this.map(function(i: number, x: any) {
-    //                return $.find.bind(x)(tag).attr("href");
-    //             });
-    //         }
-    //     }
-    // }
     return eval(command);
 }

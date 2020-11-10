@@ -1,8 +1,6 @@
 # Javascript Inline Query (jiq)
 #### JSON querying with javascript and lodash
 
-![](./assets/demo-1.gif)
-
 ## Installation
 
     npm -g install jiq
@@ -151,6 +149,38 @@ output
 
 Successfully converted json to yaml
 
+## Working with HTML
+
+you can use jQuery selector and rest is yours
+
+    jiq '$("a").map((i, x) => ({ value: $(x).html(), text: $(x).attr("href") }))' hello.html
+    jiq '$("a").pick(":href", ":text")' hello.html
+
+output
+
+    [
+        {
+            ":href": "http://xxx.com/...",
+            ":text": "hello world"
+        }
+    ]
+
+##
+
+    jiq '$("a").pick({link: ":href", name: ":text"})' hello.html
+
+output
+output
+
+    [
+        {
+            "link": "http://xxx.com/...",
+            "name": "hello world"
+        }
+    ]
+
+
+
 ## Working on remote files using
 
     curl https://api.github.com/users -q | jiq --json '.pick("login", "id")' --print table
@@ -169,9 +199,11 @@ Use `_` as global variable
 
 ## Supported data types
 
-* YAML
-* JSON
-* TEXT
+* yaml
+* json
+* text
+* xml
+* html
 
 ### Pipes
 
