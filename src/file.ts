@@ -28,30 +28,24 @@ export const getFileType = (program: any, filename?: string): FileType => {
     return "txt";
 }
 
-const readStream = async () => {
+const readStream = (cb: (str: string) => void) => {
     let data = '';
     process.stdin.on("data", (txt) => {
         data += txt.toString();
     });
-    return new Promise<string>((resolve, reject) => {
-        process.stdin.on("end", () => {
-            resolve(data);
-        }).on("error", (err) => {
-            reject(err);
-        });
+    process.stdin.on("end", () => cb(data));
+    process.stdin.on("error", (err) => {
+        console.error(err.message);
     });
 }
 
-export const read = (filename: string | undefined, fileType: FileType, callback: (data: any) => void) => {
+export const read = (filename: string | undefined, fileType: FileType, callback: (data: any) => void): void => {
     if (filename) {
-        callback(parser.parse(fs.readFileSync(filename, "utf-8"), fileType));
-        return;
+        return callback(parser.parse(fs.readFileSync(filename, "utf-8"), fileType));
     }
-    readStream().then((txt) => {
+    readStream((txt) => {
         callback(parser.parse(txt, fileType));
-    }).catch(err => {
-        console.error(err.message);
-    })
+    });
 }
 
 export const write = (data: any, filename: string, fileType: FileType) => {

@@ -43,7 +43,7 @@ export function print(data: any, fileType: FileType, printer?: PrinterTypes): vo
 }
 
 const printXML = (data: any) => {
-    const parser = new XML.j2xParser({ ignoreAttributes: false });
+    const parser = new XML.j2xParser({ ignoreAttributes: false, format: true });
     console.log(parser.parse(data));
 }
 

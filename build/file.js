@@ -49,28 +49,22 @@ exports.getFileType = (program, filename) => {
     }
     return "txt";
 };
-const readStream = async () => {
+const readStream = (cb) => {
     let data = '';
     process.stdin.on("data", (txt) => {
         data += txt.toString();
     });
-    return new Promise((resolve, reject) => {
-        process.stdin.on("end", () => {
-            resolve(data);
-        }).on("error", (err) => {
-            reject(err);
-        });
+    process.stdin.on("end", () => cb(data));
+    process.stdin.on("error", (err) => {
+        console.error(err.message);
     });
 };
 exports.read = (filename, fileType, callback) => {
     if (filename) {
-        callback(parser.parse(fs_1.default.readFileSync(filename, "utf-8"), fileType));
-        return;
+        return callback(parser.parse(fs_1.default.readFileSync(filename, "utf-8"), fileType));
     }
-    readStream().then((txt) => {
+    readStream((txt) => {
         callback(parser.parse(txt, fileType));
-    }).catch(err => {
-        console.error(err.message);
     });
 };
 exports.write = (data, filename, fileType) => {

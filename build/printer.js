@@ -44,7 +44,7 @@ function print(data, fileType, printer) {
 }
 exports.print = print;
 const printXML = (data) => {
-    const parser = new fast_xml_parser_1.default.j2xParser({ ignoreAttributes: false });
+    const parser = new fast_xml_parser_1.default.j2xParser({ ignoreAttributes: false, format: true });
     console.log(parser.parse(data));
 };
 function writeToStdout(items) {
