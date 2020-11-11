@@ -27,6 +27,18 @@ exports.build = (command) => {
         }
         out = `${fn}(${out})`;
     }
+    out = out.replace(/\[(.*?)\]/g, (a, b) => {
+        if (!b) {
+            return a;
+        }
+        b = b.split(',').map((x) => {
+            if (x.includes(':')) {
+                return `'${x}'`;
+            }
+            return x;
+        });
+        return `.get(${b})`;
+    });
     return out;
 };
 exports.run = (command, $) => {

@@ -65,6 +65,26 @@ export default function array() {
                 }
                 return this.map((item: any) => _.get(item, key));
             }
+        },
+
+        get: {
+            value(...args: (string|number)[]) {
+                if (args.length === 1 && typeof args[0] === "number") {
+                    return this[args[0]];
+                }
+                let out = [];
+                for(const arg of args) {
+                    if (typeof arg === "number") {
+                        out.push(this[arg]);
+                        continue;
+                    }
+                    const [from, to] = (arg as string).split(':');
+                    for (let x = from ? parseInt(from) : 0; x <= (to ? parseInt(to) : this.length - 1); x++) {
+                        out.push(this[x]);
+                    }
+                }
+                return out;
+            }
         }
     });
 }

@@ -23,6 +23,18 @@ export const build = (command: string) => {
         out = `${fn}(${out})`;
     }
 
+    out = out.replace(/\[(.*?)\]/g, (a, b) => {
+        if (!b) {
+            return a;
+        }
+        b = b.split(',').map((x: string) => {
+            if (x.includes(':')) {
+                return `'${x}'`;
+            }
+            return x;
+        })
+        return `.get(${b})`;
+    });
     return out;
 }
 
