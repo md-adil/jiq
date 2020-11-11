@@ -5,9 +5,8 @@ import * as printer from "./printer";
 import * as file from "./file";
 
 function main(rawQuery: string, filename?: string) {
-    let fileType = file.getFileType(program, filename);
     const commands = query.build(rawQuery);
-    file.read(filename, fileType, (data) => {
+    file.read(filename, program, (fileType: file.FileType, data) => {
         if (program.save) {
             file.write(query.run(commands, data), program.save, fileType);
         } else {

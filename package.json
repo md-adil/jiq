@@ -30,7 +30,8 @@
     "devDependencies": {
         "@types/cheerio": "^0.22.22",
         "@types/lodash": "^4.14.165",
-        "@types/node": "^14.14.6"
+        "@types/node": "^14.14.6",
+        "@types/node-fetch": "^2.5.7"
     },
     "dependencies": {
         "cheerio": "^1.0.0-rc.3",
@@ -39,6 +40,7 @@
         "csv-stringify": "^5.5.1",
         "fast-xml-parser": "^3.17.4",
         "lodash": "^4.17.20",
+        "node-fetch": "^2.6.1",
         "yaml": "^1.10.0"
     },
     "bin": "./build/index.js"

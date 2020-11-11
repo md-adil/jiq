@@ -6,13 +6,12 @@ import csvStringify from "csv-stringify/lib/sync";
 import XML from "fast-xml-parser";
 import * as cheerio from "cheerio";
 
-
 const bindHTMLFunctions = ($ : cheerio.Root) => {
     const getElementData = (root: any, query: string) => {
         const [ selector, attr ] = query.split(":");
         const el = selector ? root.find(selector) : root;
         if (!attr || attr === "text") {
-            return el.text();
+            return el.text()?.replace(/[\n\t\r]/g," ").trim();
         }
         if (attr === "html") {
             return el.html();

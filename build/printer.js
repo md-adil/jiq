@@ -48,18 +48,22 @@ const printXML = (data) => {
     console.log(parser.parse(data));
 };
 function writeToStdout(items) {
-    const stream = new stream_1.Readable({
-        read(bits) {
-            if (!items.length) {
-                return this.push(null);
-            }
-            this.push(items.shift() + os_1.EOL);
-        },
-    });
-    stream.on("error", (err) => {
-        console.log(err.message);
-    });
-    stream.pipe(process.stdout).on("error", (e) => {
-        console.log(e.message);
-    });
+    if (Array.isArray(items)) {
+        const stream = new stream_1.Readable({
+            read(bits) {
+                if (!items.length) {
+                    return this.push(null);
+                }
+                this.push(items.shift() + os_1.EOL);
+            },
+        });
+        stream.on("error", (err) => {
+            console.log(err.message);
+        });
+        stream.pipe(process.stdout).on("error", (e) => {
+            console.log(e.message);
+        });
+        return;
+    }
+    console.log(items);
 }

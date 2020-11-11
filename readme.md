@@ -1,5 +1,4 @@
 # Javascript Inline Query (jiq)
-#### JSON querying with javascript and lodash
 
 ## Installation
 
@@ -9,7 +8,7 @@ or
 
     yarn global add jiq
 
-> Concept: use existing javascript knowledge to query or mutate data
+> Concept: use existing javascript knowledge to query or mutate almost data
 
 
 ## Let's start
@@ -18,60 +17,12 @@ or
     jiq '.scripts|keys|.filter(v => /^test/.test(v))' package.json
     ls | jiq '.map(v => v.uppercase)' --save list.txt
     curl https://api.github.com/users | jiq --json '.map(x => x.login)'
+    jiq '.pick("login", "id")' https://api.github.com/users --print table
 
-### Use Case
-
-We have a file
-
-    package.json
-
-```json
-{
-    "name": "jiq",
-    "version": "0.0.2",
-    "description": "Use existing javascript knowledge to query or mutate data",
-    "keywords": ["javascript inline query", "json query", "json inline query", "json", "yaml", "query"],
-    "main": "build/index.js",
-    "author": {
-        "name": "Adil",
-        "email": "adil.sudo@gmail.com",
-        "url": "https://md-adil.github.io"
-    },
-    "homepage": "https://md-adil.github.io/jiq/",
-    "repository": {
-        "url": "https://md-adil.github.io/jiq/",
-        "type": "git"
-    },
-    "license": "MIT",
-    "scripts": {
-        "watch": "tsc -w",
-        "build": "tsc",
-        "start": "node ./build"
-    },
-    "devDependencies": {
-        "@types/lodash": "^4.14.165",
-        "@types/node": "^14.14.6"
-    },
-    "dependencies": {
-        "commander": "^6.2.0",
-        "lodash": "^4.17.20",
-        "yaml": "^1.10.0"
-    },
-    "bin": "./build/index.js"
-}
-```
-
-Getting name property
-
-    jiq '.name' package.json
-
-output
-
-    jiq
-
-Getting all dependencies
+## Working with json files
 
     jiq '.dependencies' package.json
+
 
 output
 
@@ -181,15 +132,132 @@ output
 
 
 
-## Working on remote files using
+## Working with remote files using
 
     curl https://api.github.com/users -q | jiq --json '.pick("login", "id")' --print table
+
+output
+
+    ┌─────────┬────────────┬────┐
+    │ (index) │   login    │ id │
+    ├─────────┼────────────┼────┤
+    │    0    │ 'mojombo'  │ 1  │
+    │    1    │ 'defunkt'  │ 2  │
+    │    2    │ 'pjhyett'  │ 3  │
+    │    3    │  'wycats'  │ 4  │
+    │    4    │ 'ezmobius' │ 5  │
+    └─────────┴────────────┴────┘
 
 ### explained:
 
 * `curl <url>` to get data from remote
 * `jiq --json` to tell jiq the file content is json
-* `'.map(x => x.login)'` iterate over array, get the login key and build a new array on top of that.
+* `'.pick("login", "id")'` iterate over array, get the login, id key and build a new array on top of that.
+* `'.head(10)'` take 10 items from top of the array
+
+or
+
+    jiq '$.head(10)' https://api.github.com/users
+
+output
+    
+    json output from response and take 10 records from top
+
+## Working with csv
+
+example.csv
+
+    id,name,amount,type,description
+    1,Projector,2000,fixed,Projection with audio and video to enhance your classroom/ seminar experience.
+    2,Snacks,120,person,"Quick bites like Veg. Sandwich, Burgers are available on request."
+    3,Bisleri Water Bottle,20,person,We also serve Bisleri Bottled water if special request billed per person.
+    4,CCD Coffee,25,person,CCD Roasted coffee can be served on request payable per person.
+    5,CCD Coffee,25,person,"CCD Roasted Coffee is available on request, billable per person to the space."
+    6,Audio Conferencing,0,fixed,Host audio meetings with full control
+    
+###
+
+    jiq '$' example.csv
+
+`$` is javascript array of example.csv file, and default printer is set to table
+
+output
+
+    ┌─────────┬─────┬────────────────────────┬────────┬──────────┬──────────────────────────────────────────────────────────────────────────────────┐
+    │ (index) │ id  │          name          │ amount │   type   │                                   description                                    │
+    ├─────────┼─────┼────────────────────────┼────────┼──────────┼──────────────────────────────────────────────────────────────────────────────────┤
+    │    0    │ '1' │      'Projector'       │ '2000' │ 'fixed'  │ 'Projection with audio and video to enhance your classroom/ seminar experience.' │
+    │    1    │ '2' │        'Snacks'        │ '120'  │ 'person' │       'Quick bites like Veg. Sandwich, Burgers are available on request.'        │
+    │    2    │ '3' │ 'Bisleri Water Bottle' │  '20'  │ 'person' │   'We also serve Bisleri Bottled water if special request billed per person.'    │
+    │    3    │ '4' │      'CCD Coffee'      │  '25'  │ 'person' │        'CCD Roasted coffee can be served on request payable per person.'         │
+    │    4    │ '5' │      'CCD Coffee'      │  '25'  │ 'person' │ 'CCD Roasted Coffee is available on request, billable per person to the space.'  │
+    │    5    │ '6' │  'Audio Conferencing'  │  '0'   │ 'fixed'  │                     'Host audio meetings with full control'                      │
+    └─────────┴─────┴────────────────────────┴────────┴──────────┴──────────────────────────────────────────────────────────────────────────────────┘
+
+picking name, amount and type
+
+    jiq '.pick("name", "amount", "type")' .example.csv
+
+output
+
+    ┌─────────┬────────────────────────┬────────┬──────────┐
+    │ (index) │          name          │ amount │   type   │
+    ├─────────┼────────────────────────┼────────┼──────────┤
+    │    0    │      'Projector'       │ '2000' │ 'fixed'  │
+    │    1    │        'Snacks'        │ '120'  │ 'person' │
+    │    2    │ 'Bisleri Water Bottle' │  '20'  │ 'person' │
+    │    3    │      'CCD Coffee'      │  '25'  │ 'person' │
+    │    4    │      'CCD Coffee'      │  '25'  │ 'person' │
+    │    5    │  'Audio Conferencing'  │  '0'   │ 'fixed'  │
+    └─────────┴────────────────────────┴────────┴──────────┘
+
+
+Filter records with native javascript functions
+
+    jiq '.pick("name", "amount", "type").filter(x => x.amount >= 25)' .example.csv
+
+output
+
+    ┌─────────┬──────────────┬────────┬──────────┐
+    │ (index) │     name     │ amount │   type   │
+    ├─────────┼──────────────┼────────┼──────────┤
+    │    0    │ 'Projector'  │ '2000' │ 'fixed'  │
+    │    1    │   'Snacks'   │ '120'  │ 'person' │
+    │    2    │ 'CCD Coffee' │  '25'  │ 'person' │
+    │    3    │ 'CCD Coffee' │  '25'  │ 'person' │
+    └─────────┴──────────────┴────────┴──────────┘
+
+Cast amount field as number
+
+    jiq '.pick("name", "amount", "type").filter(x => x.amount >= 25).cast("amount", "number")' .example.csv
+
+output
+
+    ┌─────────┬──────────────┬────────┬──────────┐
+    │ (index) │     name     │ amount │   type   │
+    ├─────────┼──────────────┼────────┼──────────┤
+    │    0    │ 'Projector'  │  2000  │ 'fixed'  │
+    │    1    │   'Snacks'   │  120   │ 'person' │
+    │    2    │ 'CCD Coffee' │   25   │ 'person' │
+    │    3    │ 'CCD Coffee' │   25   │ 'person' │
+    └─────────┴──────────────┴────────┴──────────┘
+
+print as json
+
+    jiq '.pick("name", "amount", "type").filter(x => x.amount >= 25).cast("amount", "number")' .example.csv --print json
+
+output
+
+    [
+        { name: 'Projector', amount: 2000, type: 'fixed' },
+        { name: 'Snacks', amount: 120, type: 'person' },
+        { name: 'CCD Coffee', amount: 25, type: 'person' },
+        { name: 'CCD Coffee', amount: 25, type: 'person' }
+    ]
+
+Save as json
+
+    jiq '.pick("name", "amount", "type").filter(x => x.amount >= 25).cast("amount", "number")' .example.csv --save example.json
 
 ## Query with lodash
 
@@ -217,16 +285,17 @@ Use `_` as global variable
 
 ### String functions
 
-* uppercase
-    `'.map(v => v.uppercase)'`
-* lowercase `.map(v => v.lowercase)`
-* camelcase `.map(v => v.camelcase)`
-* upperfirst `.map(v => v.upperfirst)`
-* capitalize `.map(v => v.capitalize)`
-* kebabcase `.map(v => v.kebabcase)`
-* snakecase
-* limit `.map(v => v.limit(10))` return max 10 chars
-* words
+where `var v = "Hello World"`.
+
+* `v.uppercase` output `"HELLO WORLD"`
+* `v.lowercase`  output `"hello world"`
+* `v.camelcase`  output `"helloWorld"`
+* `v.upperfirst`  output `"Hello world"`
+* `v.capitalize`  output `"Hello World"`
+* `v.kebabcase`  output `"hello-world"`
+* `v.snakecase`  output `"hello_world"`
+* `v.limit(8))` output `"Hello..."`
+* `v.words` split by words
 
 ### Array functions
 
@@ -237,5 +306,7 @@ Use `_` as global variable
 * nth(x) get x position eg: nth(-2) second last item
 * pick(a, b, ...) iterate over array get key from array
 * except(a, b, ...) reverse of pick
+* pluck("key") or pluck("key", "val")
+* cast("field", "cast to")
 
 Read full [documentation](https://md-adil.github.io/jiq/) here.

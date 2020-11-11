@@ -25,9 +25,8 @@ const query = __importStar(require("./query"));
 const printer = __importStar(require("./printer"));
 const file = __importStar(require("./file"));
 function main(rawQuery, filename) {
-    let fileType = file.getFileType(commander_1.program, filename);
     const commands = query.build(rawQuery);
-    file.read(filename, fileType, (data) => {
+    file.read(filename, commander_1.program, (fileType, data) => {
         if (commander_1.program.save) {
             file.write(query.run(commands, data), commander_1.program.save, fileType);
         }

@@ -1,11 +1,12 @@
-import * as parser from "./parser";
+import fetch from "node-fetch";
 import fs from "fs";
 import { extname } from "path";
+import * as parser from "./parser";
 
 export const validTypes = [ "txt", "json", "yaml", "csv", "xml", "html" ] as const;
 export type FileType = typeof validTypes[number];
 
-export const getFileType = (program: any, filename?: string): FileType => {
+const getFileType = (program: any, filename?: string): FileType => {
     switch(true) {
         case program.json:
             return "json";
@@ -39,12 +40,17 @@ const readStream = (cb: (str: string) => void) => {
     });
 }
 
-export const read = (filename: string | undefined, fileType: FileType, callback: (data: any) => void): void => {
+export const read = (filename: string | undefined, program: any, callback: (fileType: FileType, data: any) => void): void => {
+    if (filename && isRemoteFile(filename)) {
+        getRemoteData(filename).then((args) => callback(...args));
+        return;
+    }
+    const fileType = getFileType(program, filename);
     if (filename) {
-        return callback(parser.parse(fs.readFileSync(filename, "utf-8"), fileType));
+        return callback(fileType, parser.parse(fs.readFileSync(filename, "utf-8"), fileType));
     }
     readStream((txt) => {
-        callback(parser.parse(txt, fileType));
+        callback(fileType, parser.parse(txt, fileType));
     });
 }
 
@@ -54,4 +60,26 @@ export const write = (data: any, filename: string, fileType: FileType) => {
         fileType = ext.substr(1) as FileType;
     }
     fs.writeFileSync(filename, parser.stringify(data, fileType));
+}
+
+const isRemoteFile = (filename: string) => {
+    return /^https?\:\/\//.test(filename);
+}
+
+const getRemoteData = async (url: string) => {
+    const response = await fetch(url);
+    const contentType = response.headers.get("Content-Type");
+    const fileType = getFileFromContentType(contentType);
+    return [ fileType, parser.parse(await response.text(), fileType) ] as const;
+}
+
+const getFileFromContentType = (contentType: string | null): FileType => {
+    if (!contentType) {
+        return "txt";
+    }
+    const ext = contentType.split(';')[0];
+    if (!ext) {
+        return "txt";
+    }
+    return ext.split("/")[1] as FileType;
 }

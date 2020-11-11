@@ -47,19 +47,23 @@ const printXML = (data: any) => {
     console.log(parser.parse(data));
 }
 
-function writeToStdout(items: (string | number)[]) {
-    const stream = new Readable({
-        read(bits) {
-            if (!items.length) {
-                return this.push(null);
-            }
-            this.push(items.shift() + EOL);
-        },
-    });
-    stream.on("error", (err) => {
-        console.log(err.message);
-    });
-    stream.pipe(process.stdout).on("error", (e) => {
-        console.log(e.message);
-    });
+function writeToStdout(items: string | (string | number)[]) {
+    if (Array.isArray(items)) {
+        const stream = new Readable({
+            read(bits) {
+                if (!items.length) {
+                    return this.push(null);
+                }
+                this.push(items.shift() + EOL);
+            },
+        });
+        stream.on("error", (err) => {
+            console.log(err.message);
+        });
+        stream.pipe(process.stdout).on("error", (e) => {
+            console.log(e.message);
+        });
+        return;
+    }
+    console.log(items);
 }

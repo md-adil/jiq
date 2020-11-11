@@ -34,7 +34,7 @@ const bindHTMLFunctions = ($) => {
         const [selector, attr] = query.split(":");
         const el = selector ? root.find(selector) : root;
         if (!attr || attr === "text") {
-            return el.text();
+            return el.text()?.replace(/[\n\t\r]/g, " ").trim();
         }
         if (attr === "html") {
             return el.html();

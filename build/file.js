@@ -22,12 +22,13 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.write = exports.read = exports.getFileType = exports.validTypes = void 0;
-const parser = __importStar(require("./parser"));
+exports.write = exports.read = exports.validTypes = void 0;
+const node_fetch_1 = __importDefault(require("node-fetch"));
 const fs_1 = __importDefault(require("fs"));
 const path_1 = require("path");
+const parser = __importStar(require("./parser"));
 exports.validTypes = ["txt", "json", "yaml", "csv", "xml", "html"];
-exports.getFileType = (program, filename) => {
+const getFileType = (program, filename) => {
     switch (true) {
         case program.json:
             return "json";
@@ -59,12 +60,17 @@ const readStream = (cb) => {
         console.error(err.message);
     });
 };
-exports.read = (filename, fileType, callback) => {
+exports.read = (filename, program, callback) => {
+    if (filename && isRemoteFile(filename)) {
+        getRemoteData(filename).then((args) => callback(...args));
+        return;
+    }
+    const fileType = getFileType(program, filename);
     if (filename) {
-        return callback(parser.parse(fs_1.default.readFileSync(filename, "utf-8"), fileType));
+        return callback(fileType, parser.parse(fs_1.default.readFileSync(filename, "utf-8"), fileType));
     }
     readStream((txt) => {
-        callback(parser.parse(txt, fileType));
+        callback(fileType, parser.parse(txt, fileType));
     });
 };
 exports.write = (data, filename, fileType) => {
@@ -73,4 +79,23 @@ exports.write = (data, filename, fileType) => {
         fileType = ext.substr(1);
     }
     fs_1.default.writeFileSync(filename, parser.stringify(data, fileType));
+};
+const isRemoteFile = (filename) => {
+    return /^https?\:\/\//.test(filename);
+};
+const getRemoteData = async (url) => {
+    const response = await node_fetch_1.default(url);
+    const contentType = response.headers.get("Content-Type");
+    const fileType = getFileFromContentType(contentType);
+    return [fileType, parser.parse(await response.text(), fileType)];
+};
+const getFileFromContentType = (contentType) => {
+    if (!contentType) {
+        return "txt";
+    }
+    const ext = contentType.split(';')[0];
+    if (!ext) {
+        return "txt";
+    }
+    return ext.split("/")[1];
 };
