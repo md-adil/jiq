@@ -1,5 +1,6 @@
 import _ from "lodash";
-import cast from "./cast";
+import { cast } from "./object";
+
 export default function array() {
     Object.defineProperties(Array.prototype, {
         first: {
@@ -14,17 +15,12 @@ export default function array() {
         },
         head: {
             value(length: number) {
-                return _.take(this, length)
+                return this.slice(0, length);
             }
         },
         tail: {
             value(length: number) {
                 return this.slice(this.length - length);
-            }
-        },
-        nth: {
-            value(n: number) {
-                return _.nth(this, n);
             }
         },
         pick: {
@@ -36,6 +32,11 @@ export default function array() {
                 return this.map((item: any) => {
                     const result: any = {};
                     for(const i in picker) {
+                        const key = picker[i];
+                        if (typeof key === "function") {
+                            result[i] = key(item);
+                            continue;
+                        }
                         result[i] = _.get(item, picker[i]);
                     }
                     return result;
@@ -49,7 +50,7 @@ export default function array() {
         },
         cast: {
             value(key: any, castTo?: any) {
-                return this.map((item: any) => cast(item, key, castTo))
+                return cast(this, key, castTo);
             }
         },
         pluck: {
@@ -66,20 +67,22 @@ export default function array() {
                 return this.map((item: any) => _.get(item, key));
             }
         },
-
-        get: {
+        each: {
+            value(callback: (x:any) => any) {
+                this.forEach(callback);
+                return this;
+            }
+        },
+        at: {
             value(...args: (string|number)[]) {
-                if (args.length === 1 && typeof args[0] === "number") {
-                    return this[args[0]];
-                }
-                let out = [];
+                let out = new this.constructor;
                 for(const arg of args) {
                     if (typeof arg === "number") {
-                        out.push(this[arg]);
+                        out.push(_.nth(this, arg));
                         continue;
                     }
-                    const [from, to] = (arg as string).split(':');
-                    for (let x = from ? parseInt(from) : 0; x <= (to ? parseInt(to) : this.length - 1); x++) {
+                    const [ from, to ] = parseRange((arg as string).split(':'), this.length);
+                    for (let x = from; x <= to; x++) {
                         out.push(this[x]);
                     }
                 }
@@ -87,4 +90,26 @@ export default function array() {
             }
         }
     });
+}
+
+
+const parseRange = ([x, y]: string[] | string[], length: number) => {
+    let from = x ? parseInt(x) : 0;
+    let to = y ? parseInt(y) : length - 1;
+
+    if (from < 0) {
+        from = length + from;
+    }
+    if (from < 0) {
+        from = 0;
+    }
+
+    if (to < 0) {
+        to = length + to - 1;
+    }
+    if (to < from) {
+        throw new Error("Invalid range, to must be less than from");
+    }
+
+   return [from, to] as const;
 }

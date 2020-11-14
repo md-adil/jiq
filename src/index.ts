@@ -2,13 +2,22 @@
 import { program } from "commander";
 import * as query from "./query";
 import * as printer from "./printer";
-import * as file from "./file";
+import * as io from "./io";
 
-function main(rawQuery: string, filename?: string) {
+const isPiped = !process.stdin.isTTY;
+
+function main(filename?: string, rawQuery?: string) {
+    if (isPiped) {
+        rawQuery = filename || '$';
+        filename = undefined;
+    } else {
+        filename = filename || '.';
+        rawQuery = rawQuery || '$';
+    }
     const commands = query.build(rawQuery);
-    file.read(filename, program, (fileType: file.FileType, data) => {
+    io.read(filename, program, (fileType: io.FileType, data) => {
         if (program.save) {
-            file.write(query.run(commands, data), program.save, fileType);
+            io.write(query.run(commands, data), program.save, fileType);
         } else {
             printer.print(query.run(commands, data), fileType, program.print);
         }
@@ -21,9 +30,10 @@ program
     .option('--text', 'tell the program it\'s text content')
     .option('--yaml', 'tell the program it\'s yaml content')
     .option('--html', 'tell the program it\'s html content')
+    .option('--file', 'tell the program it\'s file type')
     .option('--print <format>', 'printer format (table)')
     .option('--save <filename>', 'save output to a file')
-    .arguments(`<query> [filename]`)
+    .arguments(`[filename] [query]`)
     .description(`'.name' package.json`)
     .action((query, filename) => {
         try {

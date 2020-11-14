@@ -1,4 +1,23 @@
 "use strict";
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    Object.defineProperty(o, k2, { enumerable: true, get: function() { return m[k]; } });
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
@@ -7,6 +26,9 @@ exports.run = exports.build = void 0;
 const lodash_1 = __importDefault(require("lodash"));
 const array_1 = __importDefault(require("./array"));
 const string_1 = __importDefault(require("./string"));
+const obj = __importStar(require("./object"));
+const moment_1 = __importDefault(require("moment"));
+require("./date");
 exports.build = (command) => {
     let out = '';
     if (command[0] === '.' || command[0] === '[') {
@@ -31,21 +53,27 @@ exports.build = (command) => {
         if (!b) {
             return a;
         }
-        b = b.split(',').map((x) => {
+        let args = b.split(",");
+        if (args.length === 1 && !args[0].includes(":")) {
+            return a;
+        }
+        args = args.map((x) => {
             if (x.includes(':')) {
                 return `'${x}'`;
             }
             return x;
         });
-        return `.get(${b})`;
+        return `.at(${args})`;
     });
     return out;
 };
 exports.run = (command, $) => {
     'use string';
     const _ = lodash_1.default;
+    const cast = obj.cast;
     array_1.default();
     string_1.default();
+    const date = moment_1.default;
     const values = Object.values;
     const keys = Object.keys;
     return eval(command);

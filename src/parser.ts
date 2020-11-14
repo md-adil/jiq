@@ -1,10 +1,11 @@
 import { EOL } from "os";
 import YAML from "yaml";
 import csvParse from "csv-parse/lib/sync";
-import type { FileType } from "./file";
+import type { FileType } from "./io";
 import csvStringify from "csv-stringify/lib/sync";
 import XML from "fast-xml-parser";
 import * as cheerio from "cheerio";
+import File from "./file";
 
 const bindHTMLFunctions = ($ : cheerio.Root) => {
     const getElementData = (root: any, query: string) => {
@@ -57,10 +58,14 @@ export const parse = (content: string, fileType: FileType) => {
             bindHTMLFunctions($);
             return $;
         }
+        case "file":
+            const paths = content.split(EOL);
+            if (paths.length === 1) {
+                return new File(paths[0]);
+            }
+            return paths.map((p: string) => new File(p));
     }
 };
-
-
 
 
 export const stringify = (data: any, fileType: FileType) => {

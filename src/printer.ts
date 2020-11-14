@@ -2,8 +2,12 @@ import { Readable } from "stream";
 import { EOL } from "os";
 import YAML from "yaml";
 import util from "util";
-import type { FileType } from "./file";
+import type { FileType } from "./io";
 import XML from "fast-xml-parser";
+import {table, getBorderCharacters }from "table";
+import File from "./file";
+import chalk from "chalk";
+import FileList from "./file-list";
 
 const validPrinters = [ "json", "table", "txt", "yaml", "xml" ] as const;
 export type PrinterTypes = typeof validPrinters[number];
@@ -16,9 +20,7 @@ export function print(data: any, fileType: FileType, printer?: PrinterTypes): vo
         case "table":
             return console.table(data);
         case "json":
-            process.stdout.write(util.inspect(data, false, null, true));
-            process.stdout.write(EOL);
-            return;
+            return printJSON(data);
         case "yaml":
             process.stdout.write(YAML.stringify(data));
             process.stdout.write(EOL);
@@ -33,13 +35,40 @@ export function print(data: any, fileType: FileType, printer?: PrinterTypes): vo
         case "csv":
             return console.table(data);
         case "json":
-            process.stdout.write(util.inspect(data, false, null, true));
-            process.stdout.write(EOL);
-            return;
+            return printJSON(data);
         case "txt":
             return writeToStdout(data);
+        case "file":
+            return printFile(data);
     }
     console.log(data);
+}
+
+const printJSON = (data: any) => {
+    if (data.toJSON && typeof data.toJSON === "function") {
+        data = data.toJSON();
+    }
+    process.stdout.write(util.inspect(data, false, null, true));
+    process.stdout.write(EOL);
+    return;
+}
+
+const printFile = (data: FileList | File) => {
+    if (data instanceof File) {
+        data = new FileList(data);
+    }
+    if (!(data instanceof FileList)) {
+        return console.table(data);
+    }
+    console.log(
+        table(data.toTable(), {
+            border: getBorderCharacters("norc"),
+            drawHorizontalLine(x, size) {
+                return x == 0 || x === 1 || x == size;
+            }
+        })
+    )
+    return;
 }
 
 const printXML = (data: any) => {

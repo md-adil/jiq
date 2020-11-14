@@ -1,6 +1,9 @@
 import lodash from "lodash";
 import array from "./array";
 import string from "./string";
+import * as obj from "./object";
+import moment from "moment";
+import "./date";
 
 export const build = (command: string) => {
     let out = '';
@@ -27,13 +30,17 @@ export const build = (command: string) => {
         if (!b) {
             return a;
         }
-        b = b.split(',').map((x: string) => {
+        let args = b.split(",");
+        if (args.length === 1 && !args[0].includes(":")) {
+            return a;
+        }
+        args = args.map((x: string) => {
             if (x.includes(':')) {
                 return `'${x}'`;
             }
             return x;
         })
-        return `.get(${b})`;
+        return `.at(${args})`;
     });
     return out;
 }
@@ -41,8 +48,10 @@ export const build = (command: string) => {
 export const run = (command: string, $: any ) => {
     'use string';
     const _ = lodash;
+    const cast = obj.cast;
     array();
     string();
+    const date = moment;
     const values = Object.values;
     const keys = Object.keys;
     return eval(command);

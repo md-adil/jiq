@@ -24,23 +24,29 @@
     "license": "MIT",
     "scripts": {
         "watch": "tsc -w",
-        "build": "tsc",
+        "build": "rm -r build && tsc",
         "start": "node ./build"
     },
     "devDependencies": {
         "@types/cheerio": "^0.22.22",
         "@types/lodash": "^4.14.165",
+        "@types/mime-types": "^2.1.0",
         "@types/node": "^14.14.6",
-        "@types/node-fetch": "^2.5.7"
+        "@types/node-fetch": "^2.5.7",
+        "@types/table": "^6.0.0"
     },
     "dependencies": {
+        "chalk": "^4.1.0",
         "cheerio": "^1.0.0-rc.3",
         "commander": "^6.2.0",
         "csv-parse": "^4.14.0",
         "csv-stringify": "^5.5.1",
         "fast-xml-parser": "^3.17.4",
         "lodash": "^4.17.20",
+        "mime-types": "^2.1.27",
+        "moment": "^2.29.1",
         "node-fetch": "^2.6.1",
+        "table": "^6.0.3",
         "yaml": "^1.10.0"
     },
     "bin": "./build/index.js"

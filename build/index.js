@@ -23,12 +23,21 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const commander_1 = require("commander");
 const query = __importStar(require("./query"));
 const printer = __importStar(require("./printer"));
-const file = __importStar(require("./file"));
-function main(rawQuery, filename) {
+const io = __importStar(require("./io"));
+const isPiped = !process.stdin.isTTY;
+function main(filename, rawQuery) {
+    if (isPiped) {
+        rawQuery = filename || '$';
+        filename = undefined;
+    }
+    else {
+        filename = filename || '.';
+        rawQuery = rawQuery || '$';
+    }
     const commands = query.build(rawQuery);
-    file.read(filename, commander_1.program, (fileType, data) => {
+    io.read(filename, commander_1.program, (fileType, data) => {
         if (commander_1.program.save) {
-            file.write(query.run(commands, data), commander_1.program.save, fileType);
+            io.write(query.run(commands, data), commander_1.program.save, fileType);
         }
         else {
             printer.print(query.run(commands, data), fileType, commander_1.program.print);
@@ -42,9 +51,10 @@ commander_1.program
     .option('--text', 'tell the program it\'s text content')
     .option('--yaml', 'tell the program it\'s yaml content')
     .option('--html', 'tell the program it\'s html content')
+    .option('--file', 'tell the program it\'s file type')
     .option('--print <format>', 'printer format (table)')
     .option('--save <filename>', 'save output to a file')
-    .arguments(`<query> [filename]`)
+    .arguments(`[filename] [query]`)
     .description(`'.name' package.json`)
     .action((query, filename) => {
     try {

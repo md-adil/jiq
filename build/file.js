@@ -1,101 +1,89 @@
 "use strict";
-var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    Object.defineProperty(o, k2, { enumerable: true, get: function() { return m[k]; } });
-}) : (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    o[k2] = m[k];
-}));
-var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
-    Object.defineProperty(o, "default", { enumerable: true, value: v });
-}) : function(o, v) {
-    o["default"] = v;
-});
-var __importStar = (this && this.__importStar) || function (mod) {
-    if (mod && mod.__esModule) return mod;
-    var result = {};
-    if (mod != null) for (var k in mod) if (k !== "default" && Object.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
-    __setModuleDefault(result, mod);
-    return result;
-};
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.write = exports.read = exports.validTypes = void 0;
-const node_fetch_1 = __importDefault(require("node-fetch"));
 const fs_1 = __importDefault(require("fs"));
-const path_1 = require("path");
-const parser = __importStar(require("./parser"));
-exports.validTypes = ["txt", "json", "yaml", "csv", "xml", "html"];
-const getFileType = (program, filename) => {
-    switch (true) {
-        case program.json:
-            return "json";
-        case program.text:
-            return "txt";
-        case program.yaml:
-            return "yaml";
-        case program.csv:
-            return "csv";
-        case program.html:
-            return "html";
-    }
-    if (filename) {
-        const ext = path_1.extname(filename).substr(1);
-        if (!exports.validTypes.includes(ext)) {
-            throw new Error(`${ext} is not recognized format`);
+const path_1 = __importDefault(require("path"));
+const lodash_1 = __importDefault(require("lodash"));
+const moment_1 = __importDefault(require("moment"));
+const mime_types_1 = require("mime-types");
+class File {
+    constructor(base, stats) {
+        this.deleted = false;
+        this.base = base;
+        this.location = path_1.default.resolve(base);
+        const pathInfo = path_1.default.parse(base);
+        if (!stats) {
+            stats = fs_1.default.statSync(path_1.default.resolve(base));
         }
-        return ext;
+        this.stats = stats;
+        this.ext = pathInfo.ext.substr(1);
+        this.name = pathInfo.name;
+        this.pathInfo = pathInfo;
+        this.type = this.fetchType(pathInfo, stats);
+        this.size = this.getSize(stats);
+        this.date = moment_1.default(stats.birthtime);
     }
-    return "txt";
-};
-const readStream = (cb) => {
-    let data = '';
-    process.stdin.on("data", (txt) => {
-        data += txt.toString();
-    });
-    process.stdin.on("end", () => cb(data));
-    process.stdin.on("error", (err) => {
-        console.error(err.message);
-    });
-};
-exports.read = (filename, program, callback) => {
-    if (filename && isRemoteFile(filename)) {
-        getRemoteData(filename).then((args) => callback(...args));
-        return;
+    get created() {
+        return this.date;
     }
-    const fileType = getFileType(program, filename);
-    if (filename) {
-        return callback(fileType, parser.parse(fs_1.default.readFileSync(filename, "utf-8"), fileType));
+    get modified() {
+        return moment_1.default(this.stats.atime);
     }
-    readStream((txt) => {
-        callback(fileType, parser.parse(txt, fileType));
-    });
-};
-exports.write = (data, filename, fileType) => {
-    const ext = path_1.extname(filename);
-    if (ext) {
-        fileType = ext.substr(1);
+    getSize(stats) {
+        if (stats.isDirectory()) {
+            return 0;
+        }
+        return stats.size;
     }
-    fs_1.default.writeFileSync(filename, parser.stringify(data, fileType));
-};
-const isRemoteFile = (filename) => {
-    return /^https?\:\/\//.test(filename);
-};
-const getRemoteData = async (url) => {
-    const response = await node_fetch_1.default(url);
-    const contentType = response.headers.get("Content-Type");
-    const fileType = getFileFromContentType(contentType);
-    return [fileType, parser.parse(await response.text(), fileType)];
-};
-const getFileFromContentType = (contentType) => {
-    if (!contentType) {
-        return "txt";
+    get read() {
+        if (!this.readable) {
+            return null;
+        }
+        return fs_1.default.readFileSync(this.base, "utf-8");
     }
-    const ext = contentType.split(';')[0];
-    if (!ext) {
-        return "txt";
+    get readable() {
+        if (this.stats.isFile()) {
+            return true;
+        }
+        return false;
     }
-    return ext.split("/")[1];
-};
+    rename(name) {
+        this.renamed = name;
+        fs_1.default.renameSync(this.base, name);
+        return this;
+    }
+    fetchType(info, stats) {
+        if (stats.isDirectory()) {
+            return "directory";
+        }
+        if (!stats.isFile()) {
+            return "unknown";
+        }
+        return mime_types_1.lookup(this.location) || "unknown";
+    }
+    get hidden() {
+        return this.name.startsWith('.');
+    }
+    get delete() {
+        this.deleted = true;
+        return true;
+    }
+    get isDirectory() {
+        return this.stats.isDirectory();
+    }
+    get empty() {
+        if (this.stats.isDirectory()) {
+            return fs_1.default.readdirSync(this.location).length === 0;
+        }
+        return this.size === 0;
+    }
+    toJSON() {
+        return { ...lodash_1.default.pick(this, ["base", "type", "size"]) };
+    }
+    toString() {
+        return this.name;
+    }
+}
+exports.default = File;

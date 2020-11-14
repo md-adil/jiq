@@ -3,12 +3,20 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.cast = void 0;
 const lodash_1 = __importDefault(require("lodash"));
 const presets = {
     number: parseInt,
     string: String
 };
 function cast(data, key, castTo) {
+    if (Array.isArray(data)) {
+        const newData = new data.constructor;
+        for (const row of data) {
+            newData.push(cast(row, key, castTo));
+        }
+        return newData;
+    }
     if (typeof key === "function") {
         return key(data);
     }
@@ -27,4 +35,4 @@ function cast(data, key, castTo) {
     }
     return data;
 }
-exports.default = cast;
+exports.cast = cast;

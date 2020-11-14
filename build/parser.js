@@ -29,6 +29,7 @@ const sync_1 = __importDefault(require("csv-parse/lib/sync"));
 const sync_2 = __importDefault(require("csv-stringify/lib/sync"));
 const fast_xml_parser_1 = __importDefault(require("fast-xml-parser"));
 const cheerio = __importStar(require("cheerio"));
+const file_1 = __importDefault(require("./file"));
 const bindHTMLFunctions = ($) => {
     const getElementData = (root, query) => {
         const [selector, attr] = query.split(":");
@@ -79,6 +80,12 @@ exports.parse = (content, fileType) => {
             bindHTMLFunctions($);
             return $;
         }
+        case "file":
+            const paths = content.split(os_1.EOL);
+            if (paths.length === 1) {
+                return new file_1.default(paths[0]);
+            }
+            return paths.map((p) => new file_1.default(p));
     }
 };
 exports.stringify = (data, fileType) => {

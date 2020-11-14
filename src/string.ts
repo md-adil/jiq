@@ -1,6 +1,20 @@
 import _ from "lodash";
+import { EOL } from "os";
+import { filesize } from "./humanize";
 export default function string() {
+    Object.defineProperties(Number.prototype, {
+        filesize: {
+            get() {
+                return filesize(this);
+            }
+        }
+    });
     Object.defineProperties(String.prototype, {
+        filesize: {
+            get() {
+                return filesize(parseInt(this));
+            }
+        },
         uppercase: {
             get() {
                 return this.toUpperCase();
@@ -46,6 +60,11 @@ export default function string() {
         words: {
             get() {
                 return _.words(this);
+            }
+        },
+        lines: {
+            get() {
+                return this.split(EOL);
             }
         }
     });

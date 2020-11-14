@@ -4,7 +4,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const lodash_1 = __importDefault(require("lodash"));
-const cast_1 = __importDefault(require("./cast"));
+const object_1 = require("./object");
 function array() {
     Object.defineProperties(Array.prototype, {
         first: {
@@ -19,17 +19,12 @@ function array() {
         },
         head: {
             value(length) {
-                return lodash_1.default.take(this, length);
+                return this.slice(0, length);
             }
         },
         tail: {
             value(length) {
                 return this.slice(this.length - length);
-            }
-        },
-        nth: {
-            value(n) {
-                return lodash_1.default.nth(this, n);
             }
         },
         pick: {
@@ -41,6 +36,11 @@ function array() {
                 return this.map((item) => {
                     const result = {};
                     for (const i in picker) {
+                        const key = picker[i];
+                        if (typeof key === "function") {
+                            result[i] = key(item);
+                            continue;
+                        }
                         result[i] = lodash_1.default.get(item, picker[i]);
                     }
                     return result;
@@ -54,7 +54,7 @@ function array() {
         },
         cast: {
             value(key, castTo) {
-                return this.map((item) => cast_1.default(item, key, castTo));
+                return object_1.cast(this, key, castTo);
             }
         },
         pluck: {
@@ -71,19 +71,22 @@ function array() {
                 return this.map((item) => lodash_1.default.get(item, key));
             }
         },
-        get: {
+        each: {
+            value(callback) {
+                this.forEach(callback);
+                return this;
+            }
+        },
+        at: {
             value(...args) {
-                if (args.length === 1 && typeof args[0] === "number") {
-                    return this[args[0]];
-                }
-                let out = [];
+                let out = new this.constructor;
                 for (const arg of args) {
                     if (typeof arg === "number") {
-                        out.push(this[arg]);
+                        out.push(lodash_1.default.nth(this, arg));
                         continue;
                     }
-                    const [from, to] = arg.split(':');
-                    for (let x = from ? parseInt(from) : 0; x <= (to ? parseInt(to) : this.length - 1); x++) {
+                    const [from, to] = parseRange(arg.split(':'), this.length);
+                    for (let x = from; x <= to; x++) {
                         out.push(this[x]);
                     }
                 }
@@ -93,3 +96,20 @@ function array() {
     });
 }
 exports.default = array;
+const parseRange = ([x, y], length) => {
+    let from = x ? parseInt(x) : 0;
+    let to = y ? parseInt(y) : length - 1;
+    if (from < 0) {
+        from = length + from;
+    }
+    if (from < 0) {
+        from = 0;
+    }
+    if (to < 0) {
+        to = length + to - 1;
+    }
+    if (to < from) {
+        throw new Error("Invalid range, to must be less than from");
+    }
+    return [from, to];
+};
