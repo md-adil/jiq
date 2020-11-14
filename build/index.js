@@ -45,7 +45,7 @@ function main(filename, rawQuery) {
     });
 }
 ;
-commander_1.program.version("0.0.4");
+commander_1.program.version("0.0.5");
 commander_1.program
     .option('--json', 'tell the program it\'s json content')
     .option('--text', 'tell the program it\'s text content')

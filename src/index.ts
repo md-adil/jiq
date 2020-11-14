@@ -24,7 +24,7 @@ function main(filename?: string, rawQuery?: string) {
     });
 };
 
-program.version("0.0.4");
+program.version("0.0.5");
 program
     .option('--json', 'tell the program it\'s json content')
     .option('--text', 'tell the program it\'s text content')
