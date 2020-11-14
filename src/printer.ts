@@ -4,10 +4,13 @@ import YAML from "yaml";
 import util from "util";
 import type { FileType } from "./io";
 import XML from "fast-xml-parser";
-import {table, getBorderCharacters }from "table";
+import { table, getBorderCharacters }from "table";
 import File from "./file";
 import chalk from "chalk";
 import FileList from "./file-list";
+import cheerio from "cheerio";
+import _ from "lodash";
+import { build } from "./query";
 
 const validPrinters = [ "json", "table", "txt", "yaml", "xml" ] as const;
 export type PrinterTypes = typeof validPrinters[number];
@@ -40,6 +43,8 @@ export function print(data: any, fileType: FileType, printer?: PrinterTypes): vo
             return writeToStdout(data);
         case "file":
             return printFile(data);
+        case "html":
+            return printHTML(data);
     }
     console.log(data);
 }
@@ -69,6 +74,88 @@ const printFile = (data: FileList | File) => {
         })
     )
     return;
+}
+
+const printHTML = (data: cheerio.Cheerio) => {
+    if (!(data instanceof cheerio)) {
+        return console.log(data);
+    }
+    if (!data.length) {
+        return;
+    }
+    let headers: string[] = [];
+
+    if (data.prop('tagName').toLowerCase() === 'a') {
+        headers = [ 'id', 'text', 'class', 'href', 'parent' ];
+    } else {
+        headers = [
+            'text', 'id', 'class', 'parent'
+        ];
+    }
+    const rows: string[][] = [];
+    for (let i = 0; i < data.length; i++ ) {
+        const row: string[] = [];
+        const el = data.eq(i);
+        for (const header of headers) {
+            switch(header) {
+                case "text":
+                    row.push(chalk.blue(santizeText(el.text())));
+                    break;
+                case "parent":
+                    row.push(chalk.yellow(buildTag(el.parent())))
+                    break;
+                case "class":
+                    row.push(chalk.dim(buildClassName(el)));
+                    break;
+                case "href":
+                    row.push(chalk.green(el.attr("href")));
+                    break;
+                default:
+                    row.push(
+                        el.attr(header) ?? ''
+                    )
+            }
+        }
+        rows.push(row);
+    }
+    const out = table([headers, ...rows], {
+        border: getBorderCharacters("norc"),
+        drawHorizontalLine(x, size) {
+            return x == 0 || x === 1 || x == size;
+        }
+    });
+    console.log(out);
+}
+
+const santizeText = (txt: string) => {
+    txt = txt.replace(/[\s+\t+\n+]/g, " ");
+    return _.truncate(txt, {
+        length: 50,
+    })
+}
+
+const buildTag = (el: cheerio.Cheerio) => {
+    if (el.length === 0) {
+        return '';
+    }
+    let name = el.prop('tagName').toLowerCase();
+    const id = el.attr('id');
+    if (id) {
+        name += '#' + id;
+    }
+    let cls = buildClassName(el);
+    if (cls) {
+        name += '.' + cls;
+    }
+    return name;
+}
+
+const buildClassName = (el: cheerio.Cheerio) => {
+    let cls = el.prop('class');
+    if (!cls) {
+        return '';
+    }
+    return _.truncate(cls.split(' ').join('.'), {length: 20});
 }
 
 const printXML = (data: any) => {
