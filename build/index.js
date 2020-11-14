@@ -24,6 +24,7 @@ const commander_1 = require("commander");
 const query = __importStar(require("./query"));
 const printer = __importStar(require("./printer"));
 const io = __importStar(require("./io"));
+const { version } = require('../package.json');
 const isPiped = !process.stdin.isTTY;
 function main(filename, rawQuery) {
     if (isPiped) {
@@ -45,7 +46,7 @@ function main(filename, rawQuery) {
     });
 }
 ;
-commander_1.program.version("0.0.5");
+commander_1.program.version(version);
 commander_1.program
     .option('--json', 'tell the program it\'s json content')
     .option('--text', 'tell the program it\'s text content')

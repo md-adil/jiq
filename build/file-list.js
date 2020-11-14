@@ -106,9 +106,9 @@ class FileList extends Array {
                         return chalk_1.default.strikethrough.yellow(callback(`${file.base}${os_1.EOL}${file.renamed}`, file));
                     }
                     if (file.deleted) {
-                        return chalk_1.default.strikethrough.red(file.base);
+                        return chalk_1.default.strikethrough.red(callback(file.base, file));
                     }
-                    return chalk_1.default.blue(file.base);
+                    return chalk_1.default.blue(callback(file.base, file));
                 case "date":
                     return chalk_1.default.yellow(callback(file.date, file));
                 default:

@@ -110,9 +110,9 @@ class FileList extends Array<File> {
                         ));
                     }
                     if (file.deleted) {
-                        return chalk.strikethrough.red(file.base);
+                        return chalk.strikethrough.red(callback(file.base, file));
                     }
-                    return chalk.blue(file.base);
+                    return chalk.blue(callback(file.base, file));
                 case "date":
                     return chalk.yellow(callback(file.date, file));
                 default:

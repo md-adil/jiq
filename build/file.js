@@ -67,6 +67,7 @@ class File {
         return this.name.startsWith('.');
     }
     get delete() {
+        fs_1.default.unlinkSync(this.base);
         this.deleted = true;
         return true;
     }

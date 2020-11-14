@@ -1,6 +1,6 @@
 {
     "name": "jiq",
-    "version": "0.0.5",
+    "version": "0.0.6",
     "description": "Use existing javascript knowledge to query or mutate data",
     "keywords": [
         "javascript inline query",

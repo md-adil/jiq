@@ -3,6 +3,7 @@ import { program } from "commander";
 import * as query from "./query";
 import * as printer from "./printer";
 import * as io from "./io";
+const { version } = require('../package.json');
 
 const isPiped = !process.stdin.isTTY;
 
@@ -24,7 +25,7 @@ function main(filename?: string, rawQuery?: string) {
     });
 };
 
-program.version("0.0.5");
+program.version(version);
 program
     .option('--json', 'tell the program it\'s json content')
     .option('--text', 'tell the program it\'s text content')

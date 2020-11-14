@@ -78,6 +78,7 @@ export default class File {
     }
 
     get delete() {
+        fs.unlinkSync(this.base)
         this.deleted = true;
         return true;
     }
