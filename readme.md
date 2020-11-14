@@ -63,3 +63,4 @@ output
         { email: 'emma.wong@reqres.in', name: 'Emma Wong' }
     ]
 
+Read full [documentation](https://md-adil.github.io/jiq/) here.
