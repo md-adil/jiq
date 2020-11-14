@@ -3,6 +3,7 @@
         "camelcase",
         "kebabcase",
         "snakecase",
+        "strikethrough",
         "upperfirst"
     ]
 }

@@ -16,6 +16,7 @@ export default class File {
     public readonly location: string;
     public deleted = false;
     public renamed ?: string;
+    private _isReadable?: boolean;
     constructor(base: string, stats?: fs.Stats) {
         this.base = base;
         this.location = path.resolve(base);
@@ -38,23 +39,36 @@ export default class File {
     get modified() {
         return moment(this.stats.atime);
     }
+
     getSize(stats: fs.Stats) {
         if (stats.isDirectory()) {
             return 0;
         }
         return stats.size;
     }
+
     get read() {
         if (!this.readable) {
             return null;
         }
         return fs.readFileSync(this.base, "utf-8");
     }
+
     get readable() {
+        if (typeof this._isReadable !== 'undefined') {
+            return this._isReadable;
+        }
+
+        if (this.stats.isDirectory()) {
+            this._isReadable = false;
+            return false;
+        }
         if (this.stats.isFile()) {
+            this._isReadable = true;
             return true;
         }
-        return false;
+        this._isReadable = false;
+        return this._isReadable;
     }
 
     rename(name: string) {

@@ -5,7 +5,12 @@ import { filesize } from "./humanize";
 import chalk from "chalk";
 import { EOL } from "os";
 import _ from "lodash";
-import { Moment } from "moment";
+import moment, { Moment } from "moment";
+import { humanize } from "./date";
+
+type PrintableHeader = {
+    [key: string]: (file: File) => string;
+}
 
 class FileList extends Array<File> {
     static create(loc: string): FileList | File {
@@ -29,21 +34,21 @@ class FileList extends Array<File> {
         throw new Error("Not a valid file");
     }
 
-    printableHeaders = {
-        base(x: string, file: File) {
-            return x;
+    printableHeaders: PrintableHeader = {
+        base(file: File) {
+            return file.base;
         },
-        type(x: string, file: File) {
-            return x;
+        type(file: File) {
+            return file.type;
         },
-        size(x: number, file: File) {
-            return filesize(x);
+        size(file: File) {
+            return filesize(file.size);
         },
-        date(x: Moment | string, file: File) {
-            if (typeof x === "string") {
-                return x;
+        date(file: File) {
+            if (typeof file.date === "string") {
+                return file.date;
             }
-            return x.format("MMM D, YYYY");
+            return file.date.format("MMM D, YYYY");
         }
     }
 
@@ -51,11 +56,13 @@ class FileList extends Array<File> {
         let headers: any = {};
         if (typeof args[0] === "string") {
             for (const arg of args) {
-                if ((this.printableHeaders as any)[arg]) {
+                if (this.printableHeaders[arg as keyof File]) {
                     headers[arg] = (this.printableHeaders as any)[arg];
                     continue;
                 }
-                headers[arg] = (x: string) => x;
+                headers[arg] = function(key: keyof File, file: File) {
+                    return file[key];
+                }.bind(this, arg);
             }
             this.printableHeaders = headers;
             return this;
@@ -63,7 +70,9 @@ class FileList extends Array<File> {
         headers = args[0];
         for (const i in headers) {
             if (typeof headers[i] === "string") {
-                headers[i] = (x: any) => x;
+                headers[i] = function(key: keyof File, file: File) {
+                    return file[key];
+                }.bind(this, headers[i])
             }
         }
         this.printableHeaders = headers;
@@ -78,7 +87,14 @@ class FileList extends Array<File> {
 
     except(...args: string[]) {
         for (const a of args) {
-            delete (this.printableHeaders as any)[a];
+            delete this.printableHeaders[a];
+        }
+        return this;
+    }
+
+    append(...args: string[]) {
+        for (const arg of args) {
+            this.printableHeaders[arg] = (file: File) => (file as any)[arg];
         }
         return this;
     }
@@ -94,39 +110,43 @@ class FileList extends Array<File> {
     }
 
     toTable() {
-        function getRow(x: string, callback: (d: any, file: File) => any, file: File) {
+        function format(x: keyof File, value: string, file: File) {
             switch(x) {
                 case "size":
                     if (file.isDirectory) {
                         return chalk.green('--');
                     }
-                    return chalk.green(callback(file.size, file));
+                    return chalk.green(value);
                 case "type":
-                    return chalk.magenta(file.type);
+                    return chalk.magenta(value);
+                case "name":
+                case "location":
                 case "base":
                     if (file.renamed) {
-                        return chalk.strikethrough.yellow(callback(
-                            `${file.base}${EOL}${file.renamed}`, file
-                        ));
+                        return [
+                            chalk.strikethrough.yellow(value),
+                            file.renamed
+                        ].join(EOL);
                     }
                     if (file.deleted) {
-                        return chalk.strikethrough.red(callback(file.base, file));
+                        return chalk.strikethrough.red(value);
                     }
-                    return chalk.blue(callback(file.base, file));
+                    return chalk.blue(value);
                 case "date":
-                    return chalk.yellow(callback(file.date, file));
+                    return chalk.yellow(value);
                 default:
-                    return callback((file as any)[x], file);
+                    if (moment.isMoment(value)) {
+                        return chalk.yellow(humanize(value));
+                    }
+                    return value;
             }
         }
         const headers = Object.keys(this.printableHeaders);
         const rows = this.map(file => {
             const row: string[] = [];
             for (const x of headers) {
-                const callback = (this.printableHeaders as any)[x];
-                row.push(
-                    getRow(x, callback, file)
-                );
+                const callback = this.printableHeaders[x];
+                row.push(format(x as any, callback(file), file));
             }
             return row;
         });
@@ -134,12 +154,12 @@ class FileList extends Array<File> {
     }
 
     toJSON() {
-        const headers = this.printableHeaders as any;
+        const headers = this.printableHeaders;
         return this.map(file => {
-            const row: any = {};
+            const row: Record<string, string> = {};
             for (const x in headers) {
                 const callback = headers[x];
-                row[x] = callback((file as any)[x], file);
+                row[x] = callback(file);
             }
             return row;
         });

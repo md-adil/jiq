@@ -29,6 +29,7 @@ const path_1 = __importDefault(require("path"));
 const path_2 = require("path");
 const parser = __importStar(require("./parser"));
 const file_list_1 = __importDefault(require("./file-list"));
+const os_1 = require("os");
 exports.validTypes = ["txt", "json", "yaml", "csv", "xml", "html", "file"];
 const getFileType = (program, filename) => {
     switch (true) {
@@ -67,7 +68,12 @@ const readStream = (cb) => {
     process.stdin.on("data", (txt) => {
         data += txt.toString();
     });
-    process.stdin.on("end", () => cb(data));
+    process.stdin.on("end", () => {
+        if (data.endsWith(os_1.EOL)) {
+            data = data.slice(0, -1);
+        }
+        cb(data);
+    });
     process.stdin.on("error", (err) => {
         console.error(err.message);
     });
@@ -76,6 +82,9 @@ exports.read = (filename, program, callback) => {
     if (!filename) {
         const fileType = getFileType(program);
         return readStream((txt) => {
+            if (fileType === "file") {
+                return callback(fileType, new file_list_1.default(...parser.parse(txt, fileType)));
+            }
             callback(fileType, parser.parse(txt, fileType));
         });
     }

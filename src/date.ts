@@ -31,6 +31,11 @@ Object.defineProperties(moment.fn, {
             return humanize(this);
         }
     },
+    toString: {
+        value() {
+            return humanize(this);
+        }
+    },
     isToday: {
         get() {
             return isToday(this);

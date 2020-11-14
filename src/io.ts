@@ -4,6 +4,7 @@ import path from "path";
 import { extname } from "path";
 import * as parser from "./parser";
 import FileList from "./file-list";
+import { EOL } from "os";
 
 export const validTypes = [ "txt", "json", "yaml", "csv", "xml", "html", "file" ] as const;
 export type FileType = typeof validTypes[number];
@@ -47,7 +48,12 @@ const readStream = (cb: (str: string) => void) => {
     process.stdin.on("data", (txt) => {
         data += txt.toString();
     });
-    process.stdin.on("end", () => cb(data));
+    process.stdin.on("end", () => {
+        if (data.endsWith(EOL)) {
+            data = data.slice(0, -1);
+        }
+        cb(data);
+    });
     process.stdin.on("error", (err) => {
         console.error(err.message);
     });
@@ -57,6 +63,9 @@ export const read = (filename: string | undefined, program: any, callback: (file
     if (!filename) {
         const fileType = getFileType(program);
         return readStream((txt) => {
+            if (fileType === "file") {
+                return callback(fileType, new FileList(...parser.parse(txt, fileType)))
+            }
             callback(fileType, parser.parse(txt, fileType));
         });
     }

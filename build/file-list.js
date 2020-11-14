@@ -9,24 +9,26 @@ const file_1 = __importDefault(require("./file"));
 const humanize_1 = require("./humanize");
 const chalk_1 = __importDefault(require("chalk"));
 const os_1 = require("os");
+const moment_1 = __importDefault(require("moment"));
+const date_1 = require("./date");
 class FileList extends Array {
     constructor() {
         super(...arguments);
         this.printableHeaders = {
-            base(x, file) {
-                return x;
+            base(file) {
+                return file.base;
             },
-            type(x, file) {
-                return x;
+            type(file) {
+                return file.type;
             },
-            size(x, file) {
-                return humanize_1.filesize(x);
+            size(file) {
+                return humanize_1.filesize(file.size);
             },
-            date(x, file) {
-                if (typeof x === "string") {
-                    return x;
+            date(file) {
+                if (typeof file.date === "string") {
+                    return file.date;
                 }
-                return x.format("MMM D, YYYY");
+                return file.date.format("MMM D, YYYY");
             }
         };
     }
@@ -59,7 +61,9 @@ class FileList extends Array {
                     headers[arg] = this.printableHeaders[arg];
                     continue;
                 }
-                headers[arg] = (x) => x;
+                headers[arg] = function (key, file) {
+                    return file[key];
+                }.bind(this, arg);
             }
             this.printableHeaders = headers;
             return this;
@@ -67,7 +71,9 @@ class FileList extends Array {
         headers = args[0];
         for (const i in headers) {
             if (typeof headers[i] === "string") {
-                headers[i] = (x) => x;
+                headers[i] = function (key, file) {
+                    return file[key];
+                }.bind(this, headers[i]);
             }
         }
         this.printableHeaders = headers;
@@ -84,6 +90,12 @@ class FileList extends Array {
         }
         return this;
     }
+    append(...args) {
+        for (const arg of args) {
+            this.printableHeaders[arg] = (file) => file[arg];
+        }
+        return this;
+    }
     map(callbackfn, thisArg) {
         const out = [];
         for (let i = 0; i < this.length; i++) {
@@ -92,27 +104,35 @@ class FileList extends Array {
         return out;
     }
     toTable() {
-        function getRow(x, callback, file) {
+        function format(x, value, file) {
             switch (x) {
                 case "size":
                     if (file.isDirectory) {
                         return chalk_1.default.green('--');
                     }
-                    return chalk_1.default.green(callback(file.size, file));
+                    return chalk_1.default.green(value);
                 case "type":
-                    return chalk_1.default.magenta(file.type);
+                    return chalk_1.default.magenta(value);
+                case "name":
+                case "location":
                 case "base":
                     if (file.renamed) {
-                        return chalk_1.default.strikethrough.yellow(callback(`${file.base}${os_1.EOL}${file.renamed}`, file));
+                        return [
+                            chalk_1.default.strikethrough.yellow(value),
+                            file.renamed
+                        ].join(os_1.EOL);
                     }
                     if (file.deleted) {
-                        return chalk_1.default.strikethrough.red(callback(file.base, file));
+                        return chalk_1.default.strikethrough.red(value);
                     }
-                    return chalk_1.default.blue(callback(file.base, file));
+                    return chalk_1.default.blue(value);
                 case "date":
-                    return chalk_1.default.yellow(callback(file.date, file));
+                    return chalk_1.default.yellow(value);
                 default:
-                    return callback(file[x], file);
+                    if (moment_1.default.isMoment(value)) {
+                        return chalk_1.default.yellow(date_1.humanize(value));
+                    }
+                    return value;
             }
         }
         const headers = Object.keys(this.printableHeaders);
@@ -120,7 +140,7 @@ class FileList extends Array {
             const row = [];
             for (const x of headers) {
                 const callback = this.printableHeaders[x];
-                row.push(getRow(x, callback, file));
+                row.push(format(x, callback(file), file));
             }
             return row;
         });
@@ -132,7 +152,7 @@ class FileList extends Array {
             const row = {};
             for (const x in headers) {
                 const callback = headers[x];
-                row[x] = callback(file[x], file);
+                row[x] = callback(file);
             }
             return row;
         });

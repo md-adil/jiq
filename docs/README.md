@@ -352,14 +352,75 @@ Save as json
 
 # API
 ## FileList
+
+FileList class extends Array.
+
+    pick("modified", "create")
+
+will pick create and modify field
+
+    pick({create: file => x.create.format("YYYY") })
+
+will build create field from file
+
+    pick({fileName: "name"}})
+
+will alias name to file name
+
+    append(fields: string[])
+
+add more fields to print
+
+
+and all other methods and properties of array
+
 ## File
-### base
 
-properties
+#### "File" Properties
 
-* base
+    name
 
-type string
+filename without extension
+
+    base
+
+filename with extension
+
+    ext
+
+file extension
+
+    location
+
+complete file path
+
+    hidden
+
+if filename stars with .
+
+    empty
+
+file empty or not `(type boolean)`
+
+    read
+
+contents of file `(type string)`
+
+    isDirectory
+
+if file is directory
+
+
+    delete
+
+will delete path and return true / false
+
+
+#### "File" Methods
+
+    rename(filename: string)
+
+rename the file.
 
 ## array
 

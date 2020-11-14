@@ -44,10 +44,19 @@ class File {
         return fs_1.default.readFileSync(this.base, "utf-8");
     }
     get readable() {
+        if (typeof this._isReadable !== 'undefined') {
+            return this._isReadable;
+        }
+        if (this.stats.isDirectory()) {
+            this._isReadable = false;
+            return false;
+        }
         if (this.stats.isFile()) {
+            this._isReadable = true;
             return true;
         }
-        return false;
+        this._isReadable = false;
+        return this._isReadable;
     }
     rename(name) {
         this.renamed = name;
