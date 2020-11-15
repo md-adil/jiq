@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.picker = void 0;
+exports.parseRange = exports.picker = void 0;
 const lodash_1 = __importDefault(require("lodash"));
 const object_1 = require("./object");
 exports.picker = (...fields) => {
@@ -17,6 +17,9 @@ exports.picker = (...fields) => {
     if (Array.isArray(fields[0])) {
         const keys = fields[0];
         for (let i = 0; i < keys.length; i++) {
+            if (!keys[i]) {
+                continue;
+            }
             out[keys[i]] = (data) => data[i];
         }
         return out;
@@ -104,12 +107,15 @@ function array() {
                     return;
                 }
                 let out = new this.constructor;
+                if ("headers" in this) {
+                    out.headers = this.headers;
+                }
                 for (const arg of args) {
                     if (typeof arg === "number") {
                         out.push(lodash_1.default.nth(this, arg));
                         continue;
                     }
-                    const [from, to] = parseRange(arg.split(':'), this.length);
+                    const [from, to] = exports.parseRange(arg.split(':'), this.length);
                     for (let x = from; x <= to; x++) {
                         out.push(this[x]);
                     }
@@ -120,7 +126,7 @@ function array() {
     });
 }
 exports.default = array;
-const parseRange = ([x, y], length) => {
+exports.parseRange = ([x, y], length) => {
     let from = x ? parseInt(x) : 0;
     let to = y ? parseInt(y) : length - 1;
     if (from < 0) {

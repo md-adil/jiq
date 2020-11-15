@@ -17,6 +17,9 @@ export const picker = (...fields: any[]): Picker => {
     if (Array.isArray(fields[0])) {
         const keys = fields[0];
         for(let i = 0; i < keys.length; i++) {
+            if (!keys[i]) {
+                continue;
+            }
             out[keys[i]] = (data) => data[i];
         }
         return out;
@@ -106,6 +109,9 @@ export default function array() {
                     return;
                 }
                 let out = new this.constructor;
+                if ("headers" in this) {
+                    out.headers = this.headers;
+                }
                 for(const arg of args) {
                     if (typeof arg === "number") {
                         out.push(_.nth(this, arg));
@@ -123,7 +129,7 @@ export default function array() {
 }
 
 
-const parseRange = ([x, y]: string[] | string[], length: number) => {
+export const parseRange = ([x, y]: string[] | string[], length: number) => {
     let from = x ? parseInt(x) : 0;
     let to = y ? parseInt(y) : length - 1;
 

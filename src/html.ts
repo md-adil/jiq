@@ -1,5 +1,6 @@
-import { picker } from "./array";
+import { picker, parseRange } from "./array";
 import chalk from "chalk";
+
 import _ from "lodash";
 
 
@@ -22,6 +23,30 @@ export default function html(root: cheerio.Root) {
             value(...args: any[]) {
                 this.headers = picker(...args);
                 return this;
+            }
+        },
+        at: {
+            value(...args: string[]) {
+                if (!this.length) {
+                    return;
+                }
+                let out = [];
+                for(let arg of args) {
+                    if (typeof arg === "number") {
+                        if (arg < 0) {
+                            arg = this.length + arg;
+                        }
+                        out.push(this.get(arg));
+                        continue;
+                    }
+                    const [ from, to ] = parseRange((arg as string).split(':'), this.length);
+                    for (let x = from; x <= to; x++) {
+                        out.push(this.get(x));
+                    }
+                }
+                const data = this.constructor.call(this.constructor, this._makeDomArray(out));
+                data.headers = this.headers;
+                return data;
             }
         },
 

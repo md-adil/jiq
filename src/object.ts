@@ -16,6 +16,9 @@ export function cast<T extends Record<string, Text | Text[]>>(data: T[], key: Re
 export function cast(data: any, key: any, castTo?: any) {
     if (Array.isArray(data)) {
         const newData = new (data.constructor as any);
+        if ("headers" in data) {
+            newData.headers = (data as any).headers;
+        }
         for (const row of data) {
             newData.push(cast(row, key, castTo));
         }

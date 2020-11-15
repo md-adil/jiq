@@ -96,7 +96,6 @@ class File {
             return "unknown";
         }
         return mime_types_1.lookup(this.location) || this.ext;
-        ;
     }
     get hidden() {
         return this.name.startsWith('.');

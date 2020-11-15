@@ -114,7 +114,7 @@ export default class File {
         if (!stats.isFile()) {
             return "unknown";
         }
-        return lookup(this.location) || this.ext;;
+        return lookup(this.location) || this.ext;
     }
 
     get hidden() {

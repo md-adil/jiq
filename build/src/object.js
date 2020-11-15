@@ -12,6 +12,9 @@ const presets = {
 function cast(data, key, castTo) {
     if (Array.isArray(data)) {
         const newData = new data.constructor;
+        if ("headers" in data) {
+            newData.headers = data.headers;
+        }
         for (const row of data) {
             newData.push(cast(row, key, castTo));
         }

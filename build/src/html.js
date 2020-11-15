@@ -26,6 +26,30 @@ function html(root) {
                 return this;
             }
         },
+        at: {
+            value(...args) {
+                if (!this.length) {
+                    return;
+                }
+                let out = [];
+                for (let arg of args) {
+                    if (typeof arg === "number") {
+                        if (arg < 0) {
+                            arg = this.length + arg;
+                        }
+                        out.push(this.get(arg));
+                        continue;
+                    }
+                    const [from, to] = array_1.parseRange(arg.split(':'), this.length);
+                    for (let x = from; x <= to; x++) {
+                        out.push(this.get(x));
+                    }
+                }
+                const data = this.constructor.call(this.constructor, this._makeDomArray(out));
+                data.headers = this.headers;
+                return data;
+            }
+        },
         toJSON: {
             value() {
                 if (!this.length) {
