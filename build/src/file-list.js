@@ -11,10 +11,11 @@ const chalk_1 = __importDefault(require("chalk"));
 const os_1 = require("os");
 const moment_1 = __importDefault(require("moment"));
 const date_1 = require("./date");
+const array_1 = require("./array");
 class FileList extends Array {
     constructor() {
         super(...arguments);
-        this.printableHeaders = {
+        this.headers = {
             base(file) {
                 return file.base;
             },
@@ -25,10 +26,7 @@ class FileList extends Array {
                 return humanize_1.filesize(file.size);
             },
             date(file) {
-                if (typeof file.date === "string") {
-                    return file.date;
-                }
-                return file.date.format("MMM D, YYYY");
+                return file.date;
             }
         };
     }
@@ -57,15 +55,15 @@ class FileList extends Array {
         let headers = {};
         if (typeof args[0] === "string") {
             for (const arg of args) {
-                if (this.printableHeaders[arg]) {
-                    headers[arg] = this.printableHeaders[arg];
+                if (this.headers[arg]) {
+                    headers[arg] = this.headers[arg];
                     continue;
                 }
                 headers[arg] = function (key, file) {
                     return file[key];
                 }.bind(this, arg);
             }
-            this.printableHeaders = headers;
+            this.headers = headers;
             return this;
         }
         headers = args[0];
@@ -76,24 +74,22 @@ class FileList extends Array {
                 }.bind(this, headers[i]);
             }
         }
-        this.printableHeaders = headers;
+        this.headers = headers;
         return this;
     }
     clone(files) {
         const fileList = new FileList(...files);
-        fileList.printableHeaders = this.printableHeaders;
+        fileList.headers = this.headers;
         return fileList;
     }
     except(...args) {
         for (const a of args) {
-            delete this.printableHeaders[a];
+            delete this.headers[a];
         }
         return this;
     }
     append(...args) {
-        for (const arg of args) {
-            this.printableHeaders[arg] = (file) => file[arg];
-        }
+        Object.assign(this.headers, array_1.picker(...args));
         return this;
     }
     map(callbackfn, thisArg) {
@@ -112,6 +108,9 @@ class FileList extends Array {
                     }
                     return chalk_1.default.green(value);
                 case "type":
+                    if (value === "directory") {
+                        return chalk_1.default.magenta.bold(value);
+                    }
                     return chalk_1.default.magenta(value);
                 case "name":
                 case "location":
@@ -126,8 +125,6 @@ class FileList extends Array {
                         return chalk_1.default.strikethrough.red(value);
                     }
                     return chalk_1.default.blue(value);
-                case "date":
-                    return chalk_1.default.yellow(value);
                 default:
                     if (moment_1.default.isMoment(value)) {
                         return chalk_1.default.yellow(date_1.humanize(value));
@@ -135,11 +132,11 @@ class FileList extends Array {
                     return value;
             }
         }
-        const headers = Object.keys(this.printableHeaders);
+        const headers = Object.keys(this.headers);
         const rows = this.map(file => {
             const row = [];
             for (const x of headers) {
-                const callback = this.printableHeaders[x];
+                const callback = this.headers[x];
                 row.push(format(x, callback(file), file));
             }
             return row;
@@ -147,7 +144,7 @@ class FileList extends Array {
         return [headers, ...rows];
     }
     toJSON() {
-        const headers = this.printableHeaders;
+        const headers = this.headers;
         return this.map(file => {
             const row = {};
             for (const x in headers) {

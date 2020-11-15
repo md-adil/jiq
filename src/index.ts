@@ -3,7 +3,7 @@ import { program } from "commander";
 import * as query from "./query";
 import * as printer from "./printer";
 import * as io from "./io";
-const { version } = require('../package.json');
+const { version } = require('../../package.json');
 
 const isPiped = !process.stdin.isTTY;
 

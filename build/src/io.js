@@ -82,9 +82,6 @@ exports.read = (filename, program, callback) => {
     if (!filename) {
         const fileType = getFileType(program);
         return readStream((txt) => {
-            if (fileType === "file") {
-                return callback(fileType, new file_list_1.default(...parser.parse(txt, fileType)));
-            }
             callback(fileType, parser.parse(txt, fileType));
         });
     }

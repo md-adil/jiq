@@ -7,3 +7,4 @@
 /docs
 /package-lock.json
 /yarn.lock
+/build/tests

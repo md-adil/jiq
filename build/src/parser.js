@@ -30,35 +30,8 @@ const sync_2 = __importDefault(require("csv-stringify/lib/sync"));
 const fast_xml_parser_1 = __importDefault(require("fast-xml-parser"));
 const cheerio = __importStar(require("cheerio"));
 const file_1 = __importDefault(require("./file"));
-const bindHTMLFunctions = ($) => {
-    const getElementData = (root, query) => {
-        const [selector, attr] = query.split(":");
-        const el = selector ? root.find(selector) : root;
-        if (!attr || attr === "text") {
-            return el.text()?.replace(/[\n\t\r]/g, " ").trim();
-        }
-        if (attr === "html") {
-            return el.html();
-        }
-        return el.attr(attr);
-    };
-    $.prototype.pick = function pick(...args) {
-        return this.map(function (i, el) {
-            const item = {};
-            if (typeof args[0] === "string") {
-                for (const arg of args) {
-                    item[arg] = getElementData($(el), arg);
-                }
-                return item;
-            }
-            for (const name in args[0]) {
-                const selector = args[0][name];
-                item[name] = getElementData($(el), selector);
-            }
-            return item;
-        }).toArray();
-    };
-};
+const html_1 = __importDefault(require("./html"));
+const file_list_1 = __importDefault(require("./file-list"));
 exports.parse = (content, fileType) => {
     switch (fileType) {
         case "json":
@@ -76,16 +49,18 @@ exports.parse = (content, fileType) => {
         case "txt":
             return content.split(os_1.EOL);
         case "html": {
-            const $ = cheerio.load(content);
-            bindHTMLFunctions($);
-            return $;
+            return html_1.default(cheerio.load(content));
         }
         case "file":
             const paths = content.split(os_1.EOL);
             if (paths.length === 1) {
-                return new file_1.default(paths[0]);
+                return new file_list_1.default(new file_1.default(paths[0]));
             }
-            return paths.map((p) => new file_1.default(p));
+            const fileList = new file_list_1.default();
+            paths.forEach(p => {
+                fileList.push(new file_1.default(p));
+            });
+            return fileList;
     }
 };
 exports.stringify = (data, fileType) => {

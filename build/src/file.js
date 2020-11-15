@@ -7,6 +7,7 @@ const fs_1 = __importDefault(require("fs"));
 const path_1 = __importDefault(require("path"));
 const lodash_1 = __importDefault(require("lodash"));
 const moment_1 = __importDefault(require("moment"));
+const child_process_1 = require("child_process");
 const mime_types_1 = require("mime-types");
 class File {
     constructor(base, stats) {
@@ -28,8 +29,32 @@ class File {
     get created() {
         return this.date;
     }
+    get uid() {
+        return this.stats.uid;
+    }
+    get gid() {
+        return this.stats.gid;
+    }
     get modified() {
+        return moment_1.default(this.stats.mtime);
+    }
+    get accessed() {
         return moment_1.default(this.stats.atime);
+    }
+    get group() {
+        const id = this.stats.gid;
+        if (File.groups.has(id)) {
+            return File.groups.get(id);
+        }
+        const name = child_process_1.execSync(`getent group ${id} | cut -d: -f1`).toString().trim();
+        File.groups.set(id, name);
+        return name;
+    }
+    get owner() {
+        return `${this.user}/${this.group}`;
+    }
+    get user() {
+        return child_process_1.execSync(`id -un ${this.stats.uid}`).toString().trim();
     }
     getSize(stats) {
         if (stats.isDirectory()) {
@@ -70,7 +95,8 @@ class File {
         if (!stats.isFile()) {
             return "unknown";
         }
-        return mime_types_1.lookup(this.location) || "unknown";
+        return mime_types_1.lookup(this.location) || this.ext;
+        ;
     }
     get hidden() {
         return this.name.startsWith('.');
@@ -97,3 +123,4 @@ class File {
     }
 }
 exports.default = File;
+File.groups = new Map();

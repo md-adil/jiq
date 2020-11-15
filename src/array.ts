@@ -1,6 +1,37 @@
 import _ from "lodash";
 import { cast } from "./object";
 
+type Picker = {
+    [key: string]: (data: any) => any;
+}
+
+export const picker = (...fields: any[]): Picker => {
+    let out: Picker = {};
+    if (typeof fields[0] === "string") {
+        for (const field of fields) {
+            out[field] = (data) => _.get(data, field);
+        }
+        return out;
+    }
+
+    if (Array.isArray(fields[0])) {
+        const keys = fields[0];
+        for(let i = 0; i < keys.length; i++) {
+            out[keys[i]] = (data) => data[i];
+        }
+        return out;
+    }
+
+    out = fields[0];
+    for (const field in out) {
+        const callback = out[field];
+        if (typeof callback === "string") {
+            out[field] = (data) => _.get(data, callback);
+        }
+    }
+    return out;
+}
+
 export default function array() {
     Object.defineProperties(Array.prototype, {
         first: {
@@ -28,16 +59,12 @@ export default function array() {
                 if (typeof args[0] === "string") {
                     return this.map((item: any) => _.pick(item, args as string[]));
                 }
-                const picker = args[0] as any;
+                const pick = picker(args[0] as any);
                 return this.map((item: any) => {
                     const result: any = {};
-                    for(const i in picker) {
-                        const key = picker[i];
-                        if (typeof key === "function") {
-                            result[i] = key(item);
-                            continue;
-                        }
-                        result[i] = _.get(item, picker[i]);
+                    for(const i in pick) {
+                        const key = pick[i];
+                        result[i] = key(item);
                     }
                     return result;
                 });
@@ -75,6 +102,9 @@ export default function array() {
         },
         at: {
             value(...args: (string|number)[]) {
+                if (!this.length) {
+                    return;
+                }
                 let out = new this.constructor;
                 for(const arg of args) {
                     if (typeof arg === "number") {

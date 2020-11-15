@@ -30,6 +30,10 @@ export const build = (command: string) => {
         if (!b) {
             return a;
         }
+        b = b.trim();
+        if (b.startsWith('"') || b.startsWith("'")) {
+            return a;
+        }
         let args = b.split(",");
         if (args.length === 1 && !args[0].includes(":")) {
             return a;

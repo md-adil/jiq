@@ -24,7 +24,7 @@ const commander_1 = require("commander");
 const query = __importStar(require("./query"));
 const printer = __importStar(require("./printer"));
 const io = __importStar(require("./io"));
-const { version } = require('../package.json');
+const { version } = require('../../package.json');
 const isPiped = !process.stdin.isTTY;
 function main(filename, rawQuery) {
     if (isPiped) {

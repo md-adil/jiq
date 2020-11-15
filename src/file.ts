@@ -1,10 +1,11 @@
 import fs from "fs";
 import path from "path";
 import _ from "lodash";
-import moment, { Moment, relativeTimeRounding } from "moment";
+import moment, { Moment } from "moment";
+import { execSync } from "child_process";
 import {lookup} from "mime-types";
 export default class File {
-
+    static groups = new Map<number, string>();
     public readonly name: string;
     public readonly ext: string;
     public readonly base: string;
@@ -35,9 +36,38 @@ export default class File {
     get created() {
         return this.date;
     }
-    
+    get uid() {
+        return this.stats.uid;
+    }
+
+    get gid() {
+        return this.stats.gid;
+    }
+
     get modified() {
+        return moment(this.stats.mtime);
+    }
+
+    get accessed() {
         return moment(this.stats.atime);
+    }
+
+    get group() {
+        const id = this.stats.gid;
+        if (File.groups.has(id)) {
+            return File.groups.get(id)!;
+        }
+        const name = execSync(`getent group ${id} | cut -d: -f1`).toString().trim();
+        File.groups.set(id, name);
+        return name;
+    }
+
+    get owner() {
+        return `${this.user}/${this.group}`;
+    }
+
+    get user() {
+        return execSync(`id -un ${this.stats.uid}`).toString().trim();
     }
 
     getSize(stats: fs.Stats) {
@@ -84,7 +114,7 @@ export default class File {
         if (!stats.isFile()) {
             return "unknown";
         }
-        return lookup(this.location) || "unknown";
+        return lookup(this.location) || this.ext;;
     }
 
     get hidden() {

@@ -63,9 +63,6 @@ export const read = (filename: string | undefined, program: any, callback: (file
     if (!filename) {
         const fileType = getFileType(program);
         return readStream((txt) => {
-            if (fileType === "file") {
-                return callback(fileType, new FileList(...parser.parse(txt, fileType)))
-            }
             callback(fileType, parser.parse(txt, fileType));
         });
     }
@@ -79,7 +76,6 @@ export const read = (filename: string | undefined, program: any, callback: (file
         return callback(fileType, FileList.create(filename));
     }
     return callback(fileType, parser.parse(fs.readFileSync(filename, "utf-8"), fileType));
-    
 }
 
 export const write = (data: any, filename: string, fileType: FileType) => {

@@ -5,10 +5,11 @@ import { filesize } from "./humanize";
 import chalk from "chalk";
 import { EOL } from "os";
 import _ from "lodash";
-import moment, { Moment } from "moment";
+import moment from "moment";
 import { humanize } from "./date";
+import { picker } from "./array";
 
-type PrintableHeader = {
+type Header = {
     [key: string]: (file: File) => string;
 }
 
@@ -34,7 +35,7 @@ class FileList extends Array<File> {
         throw new Error("Not a valid file");
     }
 
-    printableHeaders: PrintableHeader = {
+    headers: Header = {
         base(file: File) {
             return file.base;
         },
@@ -45,10 +46,7 @@ class FileList extends Array<File> {
             return filesize(file.size);
         },
         date(file: File) {
-            if (typeof file.date === "string") {
-                return file.date;
-            }
-            return file.date.format("MMM D, YYYY");
+            return file.date as any;
         }
     }
 
@@ -56,15 +54,15 @@ class FileList extends Array<File> {
         let headers: any = {};
         if (typeof args[0] === "string") {
             for (const arg of args) {
-                if (this.printableHeaders[arg as keyof File]) {
-                    headers[arg] = (this.printableHeaders as any)[arg];
+                if (this.headers[arg as keyof File]) {
+                    headers[arg] = (this.headers as any)[arg];
                     continue;
                 }
                 headers[arg] = function(key: keyof File, file: File) {
                     return file[key];
                 }.bind(this, arg);
             }
-            this.printableHeaders = headers;
+            this.headers = headers;
             return this;
         }
         headers = args[0];
@@ -75,27 +73,25 @@ class FileList extends Array<File> {
                 }.bind(this, headers[i])
             }
         }
-        this.printableHeaders = headers;
+        this.headers = headers;
         return this;
     }
 
     clone(files: File[]): FileList {
         const fileList = new FileList(...files);
-        fileList.printableHeaders = this.printableHeaders;
+        fileList.headers = this.headers;
         return fileList;
     }
 
     except(...args: string[]) {
         for (const a of args) {
-            delete this.printableHeaders[a];
+            delete this.headers[a];
         }
         return this;
     }
 
     append(...args: string[]) {
-        for (const arg of args) {
-            this.printableHeaders[arg] = (file: File) => (file as any)[arg];
-        }
+        Object.assign(this.headers, picker(...args));
         return this;
     }
 
@@ -118,6 +114,9 @@ class FileList extends Array<File> {
                     }
                     return chalk.green(value);
                 case "type":
+                    if (value === "directory") {
+                        return chalk.magenta.bold(value);
+                    }
                     return chalk.magenta(value);
                 case "name":
                 case "location":
@@ -132,8 +131,6 @@ class FileList extends Array<File> {
                         return chalk.strikethrough.red(value);
                     }
                     return chalk.blue(value);
-                case "date":
-                    return chalk.yellow(value);
                 default:
                     if (moment.isMoment(value)) {
                         return chalk.yellow(humanize(value));
@@ -141,11 +138,11 @@ class FileList extends Array<File> {
                     return value;
             }
         }
-        const headers = Object.keys(this.printableHeaders);
+        const headers = Object.keys(this.headers);
         const rows = this.map(file => {
             const row: string[] = [];
             for (const x of headers) {
-                const callback = this.printableHeaders[x];
+                const callback = this.headers[x];
                 row.push(format(x as any, callback(file), file));
             }
             return row;
@@ -154,7 +151,7 @@ class FileList extends Array<File> {
     }
 
     toJSON() {
-        const headers = this.printableHeaders;
+        const headers = this.headers;
         return this.map(file => {
             const row: Record<string, string> = {};
             for (const x in headers) {

@@ -3,8 +3,33 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.picker = void 0;
 const lodash_1 = __importDefault(require("lodash"));
 const object_1 = require("./object");
+exports.picker = (...fields) => {
+    let out = {};
+    if (typeof fields[0] === "string") {
+        for (const field of fields) {
+            out[field] = (data) => lodash_1.default.get(data, field);
+        }
+        return out;
+    }
+    if (Array.isArray(fields[0])) {
+        const keys = fields[0];
+        for (let i = 0; i < keys.length; i++) {
+            out[keys[i]] = (data) => data[i];
+        }
+        return out;
+    }
+    out = fields[0];
+    for (const field in out) {
+        const callback = out[field];
+        if (typeof callback === "string") {
+            out[field] = (data) => lodash_1.default.get(data, callback);
+        }
+    }
+    return out;
+};
 function array() {
     Object.defineProperties(Array.prototype, {
         first: {
@@ -32,16 +57,12 @@ function array() {
                 if (typeof args[0] === "string") {
                     return this.map((item) => lodash_1.default.pick(item, args));
                 }
-                const picker = args[0];
+                const pick = exports.picker(args[0]);
                 return this.map((item) => {
                     const result = {};
-                    for (const i in picker) {
-                        const key = picker[i];
-                        if (typeof key === "function") {
-                            result[i] = key(item);
-                            continue;
-                        }
-                        result[i] = lodash_1.default.get(item, picker[i]);
+                    for (const i in pick) {
+                        const key = pick[i];
+                        result[i] = key(item);
                     }
                     return result;
                 });
@@ -79,6 +100,9 @@ function array() {
         },
         at: {
             value(...args) {
+                if (!this.length) {
+                    return;
+                }
                 let out = new this.constructor;
                 for (const arg of args) {
                     if (typeof arg === "number") {

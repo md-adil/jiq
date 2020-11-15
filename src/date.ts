@@ -6,10 +6,22 @@ const YESTERDAY = REFERENCE.clone().subtract(1, 'days').startOf('day');
 const A_WEEK_OLD = REFERENCE.clone().subtract(7, 'days').startOf('day');
 
 export const humanize = (date: Moment) => {
-    return date.fromNow();
+    if (isToday(date)) {
+        return date.fromNow();
+    }
+    if (isWithinAWeek(date)) {
+        return date.format("ddd LT").toLowerCase();
+    }
+    if (isThisYear(date)) {
+        return date.format('MMM Do LT').toLowerCase();
+    }
+    return date.format('lll').toLowerCase();
 }
 
-function isToday(date: Moment) {
+function isThisYear(date: Moment) {
+    return date.year() === REFERENCE.year();
+} 
+function isToday(date: Moment) { 
     return date.isSame(TODAY, 'd');
 }
 
