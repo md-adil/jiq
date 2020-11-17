@@ -1,6 +1,39 @@
+
+
+#    A command line tool to manipulate files and directories using javascript
+
+# installation
+
+    yarn global add jiq
+
+or 
+
+    npm -g install jiq
+
 # Let's start
 
+
+
 files and directory
+
+    jiq
+
+output
+
+    ┌───────────────────┬──────────────────┬──────────┬───────────────────┐
+    │ base              │ type             │ size     │ date              │
+    ├───────────────────┼──────────────────┼──────────┼───────────────────┤
+    │ .git              │ directory        │ --       │ nov 7th 10:54 pm  │
+    │ .gitignore        │                  │ 63 B     │ nov 7th 10:54 pm  │
+    │ .npmignore        │                  │ 103 B    │ nov 9th 11:38 pm  │
+    │ .vscode           │ directory        │ --       │ nov 10th 9:56 pm  │
+    │ _config.yml       │ text/yaml        │ 26 B     │ nov 8th 11:32 am  │
+    │ assets            │ directory        │ --       │ nov 9th 11:39 pm  │
+    │ build             │ directory        │ --       │ sun 10:00 pm      │
+    │ docs              │ directory        │ --       │ nov 13th 12:06 am │
+
+
+filter out directories only
 
     jiq . '.filter(x => x.isDirectory)'
 

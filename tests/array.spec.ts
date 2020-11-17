@@ -1,45 +1,45 @@
 import { assert, expect } from "chai";
-import { picker, at } from "../src/array";
+import { picker as pick, at } from "../src/array";
 
 describe("array", () => {
     describe("picker", () => {
 
         it("list of fields", () => {
-            const data = picker("name", "age");
+            const data = pick("name", "age");
             assert.equal(data.name({ name: "hello" }), "hello");
             assert.equal(data.age({ age: 10 }), 10);
         });
 
         it("string object", () => {
-            const data = picker({ name: "base", age: "old" });
+            const data = pick({ name: "base", age: "old" });
             assert.equal(data.name({ base: "awesome" }), "awesome");
             assert.equal(data.age({ old: 23 }), 23);
         })
 
         it("function object", () => {
-            const data = picker({ name: (x: any) => x.base, age: "old" });
+            const data = pick({ name: (x: any) => x.base, age: "old" });
             assert.equal(data.name({ base: "awesome" }), "awesome");
             assert.equal(data.age({ old: 23 }), 23);
         })
 
         it("nested object", () => {
-            const data = picker({ name: "user.name" });
+            const data = pick({ name: "user.name" });
             assert.equal(data.name({ user : { name: "Adil" } }), "Adil");
         });
 
         it("pick with index", () => {
-            const data = picker(["name"]);
+            const data = pick(["name"]);
             assert.equal(data.name(["Adil"]), "Adil");
         });
     });
 
     describe("#at", () => {
 
-        it("index", () => {
+        it("get value at index 2", () => {
             expect(at([1,3,4], 2)).equal(4);
         });
         
-        it("multiple index", () => {
+        it("get values multiple index", () => {
             expect(at([1,3,4], 2, 1)).to.eql([4, 3]);
         })
 
@@ -51,11 +51,11 @@ describe("array", () => {
             expect(at([1, 3, 4, 9, 2, 3, 64], '1:3', 6)).to.eql([3, 4, 9, 64]);
         });
 
-        it("head", () => {
+        it("get # values from top", () => {
             expect(at([1, 3, 4, 9, 2, 3, 64], ':3')).to.eql([1, 3, 4, 9]);
         });
 
-        it("tail", () => {
+        it("get # values from bottom", () => {
             expect(at([1, 3, 4, 9, 2, 3, 64], '3:')).to.eql([ 9, 2, 3, 64 ]);
         });
 
