@@ -43,8 +43,23 @@ export function cast(data: any, key: any, castTo?: any) {
 
     for (const i in key) {
         _.set(
-            data, i, cast(_.get(data, key), key[i])
+            data, i, cast(_.get(data, i), key[i])
         )
     }
     return data;
+}
+
+const typesMapping: {[key: string]: string} = {
+    Number: "number",
+    String: "string",
+    Array: "array",
+    Moment: "date",
+    Object: "object"
+}
+
+export function type(data: any) {
+    if (!data) {
+        throw new Error("Cannot read type of undefined");
+    }
+    return  typesMapping[data.constructor.name] || data.constructor.name;
 }

@@ -13,7 +13,7 @@ exports.humanize = (date) => {
     if (isToday(date)) {
         return date.fromNow();
     }
-    if (isWithinAWeek(date)) {
+    if (date.isSame(REFERENCE, "week")) {
         return date.format("ddd LT").toLowerCase();
     }
     if (isThisYear(date)) {
@@ -57,6 +57,11 @@ Object.defineProperties(moment_1.default.fn, {
             return isYesterday(this);
         }
     },
+    isThisWeek: {
+        get() {
+            return this.isSame(REFERENCE, "week");
+        }
+    },
     isWithinAWeek: {
         get() {
             return isWithinAWeek(this);
@@ -66,5 +71,5 @@ Object.defineProperties(moment_1.default.fn, {
         get() {
             return isTwoWeeksOrMore(this);
         }
-    },
+    }
 });

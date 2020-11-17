@@ -3,9 +3,49 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.parseRange = exports.picker = void 0;
+exports.picker = exports.at = void 0;
 const lodash_1 = __importDefault(require("lodash"));
 const object_1 = require("./object");
+const parseRange = ([x, y], length) => {
+    let from = x ? parseInt(x) : 0;
+    let to = y ? parseInt(y) : length - 1;
+    if (from < 0) {
+        from = length + from;
+    }
+    if (from < 0) {
+        from = 0;
+    }
+    if (to < 0) {
+        to = length + to;
+    }
+    if (to < from) {
+        throw new Error("Invalid range, to must be less than from");
+    }
+    return [from, to];
+};
+exports.at = (items, ...args) => {
+    if (!items.length) {
+        return;
+    }
+    let out = new items.constructor;
+    if ("headers" in items) {
+        out.headers = items.headers;
+    }
+    if (args.length === 1 && typeof args[0] === "number") {
+        return lodash_1.default.nth(items, args[0]);
+    }
+    for (const arg of args) {
+        if (typeof arg === "number") {
+            out.push(lodash_1.default.nth(items, arg));
+            continue;
+        }
+        const [from, to] = parseRange(arg.split(':'), items.length);
+        for (let x = from; x <= to; x++) {
+            out.push(items[x]);
+        }
+    }
+    return out;
+};
 exports.picker = (...fields) => {
     let out = {};
     if (typeof fields[0] === "string") {
@@ -103,43 +143,9 @@ function array() {
         },
         at: {
             value(...args) {
-                if (!this.length) {
-                    return;
-                }
-                let out = new this.constructor;
-                if ("headers" in this) {
-                    out.headers = this.headers;
-                }
-                for (const arg of args) {
-                    if (typeof arg === "number") {
-                        out.push(lodash_1.default.nth(this, arg));
-                        continue;
-                    }
-                    const [from, to] = exports.parseRange(arg.split(':'), this.length);
-                    for (let x = from; x <= to; x++) {
-                        out.push(this[x]);
-                    }
-                }
-                return out;
+                return exports.at(this, ...args);
             }
         }
     });
 }
 exports.default = array;
-exports.parseRange = ([x, y], length) => {
-    let from = x ? parseInt(x) : 0;
-    let to = y ? parseInt(y) : length - 1;
-    if (from < 0) {
-        from = length + from;
-    }
-    if (from < 0) {
-        from = 0;
-    }
-    if (to < 0) {
-        to = length + to - 1;
-    }
-    if (to < from) {
-        throw new Error("Invalid range, to must be less than from");
-    }
-    return [from, to];
-};

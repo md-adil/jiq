@@ -19,11 +19,15 @@ var __importStar = (this && this.__importStar) || function (mod) {
     __setModuleDefault(result, mod);
     return result;
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 const commander_1 = require("commander");
 const query = __importStar(require("./query"));
 const printer = __importStar(require("./printer"));
 const io = __importStar(require("./io"));
+const chalk_1 = __importDefault(require("chalk"));
 const { version } = require('../../package.json');
 const isPiped = !process.stdin.isTTY;
 function main(filename, rawQuery) {
@@ -62,7 +66,7 @@ commander_1.program
         main(query, filename);
     }
     catch (err) {
-        console.error('Error:', err.message);
+        console.error(chalk_1.default.red(err.message));
     }
 });
 commander_1.program.parse(process.argv);

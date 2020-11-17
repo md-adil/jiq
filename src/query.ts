@@ -53,6 +53,7 @@ export const run = (command: string, $: any ) => {
     'use string';
     const _ = lodash;
     const cast = obj.cast;
+    const type = obj.type;
     array();
     string();
     const date = moment;

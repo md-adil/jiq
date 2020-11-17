@@ -75,6 +75,7 @@ exports.run = (command, $) => {
     'use string';
     const _ = lodash_1.default;
     const cast = obj.cast;
+    const type = obj.type;
     array_1.default();
     string_1.default();
     const date = moment_1.default;

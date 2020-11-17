@@ -5,6 +5,53 @@ type Picker = {
     [key: string]: (data: any) => any;
 }
 
+const parseRange = ([x, y]: string[] | string[], length: number) => {
+    let from = x ? parseInt(x) : 0;
+    let to = y ? parseInt(y) : length - 1;
+
+    if (from < 0) {
+        from = length + from;
+    }
+    if (from < 0) {
+        from = 0;
+    }
+
+    if (to < 0) {
+        to = length + to;
+    }
+    if (to < from) {
+        throw new Error("Invalid range, to must be less than from");
+    }
+
+   return [ from, to ] as const;
+}
+
+export const at = (items: any[], ...args: any[])  => {
+    if (!items.length) {
+        return;
+    }
+    let out = new (items as any).constructor;
+    if ("headers" in items) {
+        out.headers = (items as any).headers;
+    }
+
+    if (args.length === 1 && typeof args[0] === "number") {
+        return _.nth(items, args[0]);
+    }
+
+    for(const arg of args) {
+        if (typeof arg === "number") {
+            out.push(_.nth(items, arg));
+            continue;
+        }
+        const [ from, to ] = parseRange((arg as string).split(':'), items.length);
+        for (let x = from; x <= to; x++) {
+            out.push(items[x]);
+        }
+    }
+    return out;
+}
+
 export const picker = (...fields: any[]): Picker => {
     let out: Picker = {};
     if (typeof fields[0] === "string") {
@@ -105,47 +152,10 @@ export default function array() {
         },
         at: {
             value(...args: (string|number)[]) {
-                if (!this.length) {
-                    return;
-                }
-                let out = new this.constructor;
-                if ("headers" in this) {
-                    out.headers = this.headers;
-                }
-                for(const arg of args) {
-                    if (typeof arg === "number") {
-                        out.push(_.nth(this, arg));
-                        continue;
-                    }
-                    const [ from, to ] = parseRange((arg as string).split(':'), this.length);
-                    for (let x = from; x <= to; x++) {
-                        out.push(this[x]);
-                    }
-                }
-                return out;
+                return at(this, ...args);
             }
         }
     });
 }
 
 
-export const parseRange = ([x, y]: string[] | string[], length: number) => {
-    let from = x ? parseInt(x) : 0;
-    let to = y ? parseInt(y) : length - 1;
-
-    if (from < 0) {
-        from = length + from;
-    }
-    if (from < 0) {
-        from = 0;
-    }
-
-    if (to < 0) {
-        to = length + to - 1;
-    }
-    if (to < from) {
-        throw new Error("Invalid range, to must be less than from");
-    }
-
-   return [from, to] as const;
-}

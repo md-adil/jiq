@@ -9,7 +9,7 @@ export const humanize = (date: Moment) => {
     if (isToday(date)) {
         return date.fromNow();
     }
-    if (isWithinAWeek(date)) {
+    if (date.isSame(REFERENCE, "week")) {
         return date.format("ddd LT").toLowerCase();
     }
     if (isThisYear(date)) {
@@ -20,7 +20,8 @@ export const humanize = (date: Moment) => {
 
 function isThisYear(date: Moment) {
     return date.year() === REFERENCE.year();
-} 
+}
+
 function isToday(date: Moment) { 
     return date.isSame(TODAY, 'd');
 }
@@ -53,22 +54,24 @@ Object.defineProperties(moment.fn, {
             return isToday(this);
         }
     },
-    
     isYesterday: {
         get() {
             return isYesterday(this);
         }
     },
-    
+    isThisWeek: {
+        get() {
+            return this.isSame(REFERENCE, "week")
+        }
+    },
     isWithinAWeek: {
         get() {
             return isWithinAWeek(this);
         }
     },
-    
     isTwoWeeksOrMore: {
         get() {
             return isTwoWeeksOrMore(this);
         }
-    },
-})
+    }
+});

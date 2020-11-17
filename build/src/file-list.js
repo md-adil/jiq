@@ -29,6 +29,14 @@ class FileList extends Array {
                 return file.date;
             }
         };
+        this.sortingPresets = {
+            latest(a, b) {
+                return b.created.unix() - a.created.unix();
+            },
+            recent(a, b) {
+                return b.modified.unix() - a.modified.unix();
+            }
+        };
     }
     static create(loc) {
         const fullpath = path_1.default.resolve(loc);
@@ -75,6 +83,35 @@ class FileList extends Array {
             }
         }
         this.headers = headers;
+        return this;
+    }
+    sort(compareFn, asc = "asc") {
+        if (typeof compareFn === "string") {
+            if (compareFn in this.sortingPresets) {
+                this.sort(this.sortingPresets[compareFn]);
+                return this;
+            }
+            if (compareFn === "latest") {
+                this.sort((x, y) => {
+                    return y.date - x.date;
+                });
+                return this;
+            }
+            if (asc === "asc") {
+                this.sort((x, y) => {
+                    return y[compareFn] - x[compareFn];
+                });
+            }
+            else {
+                this.sort((x, y) => {
+                    return x[compareFn] - y[compareFn];
+                });
+            }
+            return this;
+        }
+        if (typeof compareFn === "function") {
+            return super.sort(compareFn);
+        }
         return this;
     }
     clone(files) {

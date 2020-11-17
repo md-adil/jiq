@@ -31,21 +31,7 @@ function html(root) {
                 if (!this.length) {
                     return;
                 }
-                let out = [];
-                for (let arg of args) {
-                    if (typeof arg === "number") {
-                        if (arg < 0) {
-                            arg = this.length + arg;
-                        }
-                        out.push(this.get(arg));
-                        continue;
-                    }
-                    const [from, to] = array_1.parseRange(arg.split(':'), this.length);
-                    for (let x = from; x <= to; x++) {
-                        out.push(this.get(x));
-                    }
-                }
-                const data = this.constructor.call(this.constructor, this._makeDomArray(out));
+                const data = this.constructor.call(this.constructor, this._makeDomArray(array_1.at(this.toArray(), ...args)));
                 data.headers = this.headers;
                 return data;
             }
@@ -102,6 +88,7 @@ const format = (key, value) => {
         case ":class":
             return chalk_1.default.dim(value);
         case ":href":
+        case ":src":
             return chalk_1.default.green(value);
         default:
             return value;
@@ -110,9 +97,13 @@ const format = (key, value) => {
 const defaultHeaders = (el) => {
     const tagName = el.prop('tagName').toLowerCase();
     switch (tagName) {
+        case "script":
+        case "img":
+            return array_1.picker(":id", ":src", ":class");
         case "meta":
             return array_1.picker(":tagName", ":name", ":content");
         case "a":
+        case "link":
             return array_1.picker(':id', ':text', ':href', ':class');
         default:
             return array_1.picker(':id', ':text', ':class');

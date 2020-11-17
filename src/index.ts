@@ -3,6 +3,7 @@ import { program } from "commander";
 import * as query from "./query";
 import * as printer from "./printer";
 import * as io from "./io";
+import chalk from "chalk";
 const { version } = require('../../package.json');
 
 const isPiped = !process.stdin.isTTY;
@@ -40,7 +41,7 @@ program
         try {
             main(query, filename);
         } catch(err) {
-            console.error('Error:', err.message);
+            console.error(chalk.red(err.message));
         }
     });
 

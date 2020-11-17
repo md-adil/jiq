@@ -1,4 +1,4 @@
-import { picker, parseRange } from "./array";
+import { picker, at } from "./array";
 import chalk from "chalk";
 
 import _ from "lodash";
@@ -30,21 +30,7 @@ export default function html(root: cheerio.Root) {
                 if (!this.length) {
                     return;
                 }
-                let out = [];
-                for(let arg of args) {
-                    if (typeof arg === "number") {
-                        if (arg < 0) {
-                            arg = this.length + arg;
-                        }
-                        out.push(this.get(arg));
-                        continue;
-                    }
-                    const [ from, to ] = parseRange((arg as string).split(':'), this.length);
-                    for (let x = from; x <= to; x++) {
-                        out.push(this.get(x));
-                    }
-                }
-                const data = this.constructor.call(this.constructor, this._makeDomArray(out));
+                const data = this.constructor.call(this.constructor, this._makeDomArray(at(this.toArray(), ...args)));
                 data.headers = this.headers;
                 return data;
             }
@@ -102,7 +88,9 @@ const format = (key: string, value: string) => {
         case ":class":
             return chalk.dim(value);
         case ":href":
+        case ":src":
             return chalk.green(value);
+
         default:
             return value;
     }
@@ -111,9 +99,13 @@ const format = (key: string, value: string) => {
 const defaultHeaders = (el: cheerio.Cheerio) => {
     const tagName = el.prop('tagName').toLowerCase();
     switch(tagName) {
+        case "script":
+        case "img":
+            return picker(":id", ":src", ":class");
         case "meta":
             return picker(":tagName", ":name", ":content");
         case "a":
+        case "link":
             return picker(':id', ':text', ':href', ':class');
         default:
             return picker(':id', ':text', ':class');
