@@ -1,23 +1,4 @@
 "use strict";
-var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    Object.defineProperty(o, k2, { enumerable: true, get: function() { return m[k]; } });
-}) : (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    o[k2] = m[k];
-}));
-var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
-    Object.defineProperty(o, "default", { enumerable: true, value: v });
-}) : function(o, v) {
-    o["default"] = v;
-});
-var __importStar = (this && this.__importStar) || function (mod) {
-    if (mod && mod.__esModule) return mod;
-    var result = {};
-    if (mod != null) for (var k in mod) if (k !== "default" && Object.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
-    __setModuleDefault(result, mod);
-    return result;
-};
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
@@ -28,9 +9,7 @@ const yaml_1 = __importDefault(require("yaml"));
 const sync_1 = __importDefault(require("csv-parse/lib/sync"));
 const sync_2 = __importDefault(require("csv-stringify/lib/sync"));
 const fast_xml_parser_1 = __importDefault(require("fast-xml-parser"));
-const cheerio = __importStar(require("cheerio"));
 const file_1 = __importDefault(require("./file"));
-const html_1 = __importDefault(require("./html"));
 const file_list_1 = __importDefault(require("./file-list"));
 exports.parse = (content, fileType) => {
     switch (fileType) {
@@ -49,7 +28,7 @@ exports.parse = (content, fileType) => {
         case "txt":
             return content.split(os_1.EOL);
         case "html": {
-            return html_1.default(cheerio.load(content));
+            return require("./html")(content);
         }
         case "file":
             const paths = content.split(os_1.EOL);

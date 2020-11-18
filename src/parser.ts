@@ -4,10 +4,8 @@ import csvParse from "csv-parse/lib/sync";
 import type { FileType } from "./io";
 import csvStringify from "csv-stringify/lib/sync";
 import XML from "fast-xml-parser";
-import * as cheerio from "cheerio";
 import File from "./file";
 
-import html from "./html";
 import FileList from "./file-list";
 
 export const parse = (content: string, fileType: FileType) => {
@@ -27,7 +25,7 @@ export const parse = (content: string, fileType: FileType) => {
         case "txt":
             return content.split(EOL);
         case "html": {
-            return html(cheerio.load(content));
+            return require("./html")(content);
         }
         case "file":
             const paths = content.split(EOL);

@@ -1,10 +1,10 @@
 import { picker, at } from "./array";
 import chalk from "chalk";
-
+import cheerio from "cheerio";
 import _ from "lodash";
 
-
-export default function html(root: cheerio.Root) {
+export default function html(html: string) {
+    const root = cheerio.load(html);
     Object.defineProperties(root, {
         toJSON: {
             value() {

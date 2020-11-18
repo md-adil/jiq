@@ -18,6 +18,7 @@ export default class File {
     public deleted = false;
     public renamed ?: string;
     private _isReadable?: boolean;
+
     constructor(base: string, stats?: fs.Stats) {
         this.base = base;
         this.location = path.resolve(base);
@@ -33,9 +34,11 @@ export default class File {
         this.size = this.getSize(stats);
         this.date = moment(stats.birthtime);
     }
+
     get created() {
         return this.date;
     }
+
     get uid() {
         return this.stats.uid;
     }

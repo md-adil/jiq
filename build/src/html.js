@@ -5,8 +5,10 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const array_1 = require("./array");
 const chalk_1 = __importDefault(require("chalk"));
+const cheerio_1 = __importDefault(require("cheerio"));
 const lodash_1 = __importDefault(require("lodash"));
-function html(root) {
+function html(html) {
+    const root = cheerio_1.default.load(html);
     Object.defineProperties(root, {
         toJSON: {
             value() {
