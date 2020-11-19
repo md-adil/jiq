@@ -161,7 +161,7 @@ class FileList extends Array {
                     if (file.deleted) {
                         return chalk_1.default.strikethrough.red(value);
                     }
-                    return chalk_1.default.blue(value);
+                    return chalk_1.default.blueBright(value);
                 default:
                     if (moment_1.default.isMoment(value)) {
                         return chalk_1.default.yellow(date_1.humanize(value));

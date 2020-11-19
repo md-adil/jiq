@@ -393,6 +393,24 @@ file extension
 
 complete file path
 
+    date
+
+see all [date](?id=date)
+
+type Moment instance
+
+    created
+
+type Moment instance
+
+    modified
+
+type Moment instance
+
+    accessed
+
+type Moment instance
+
     hidden
 
 if filename stars with .
@@ -420,6 +438,22 @@ will delete path and return true / false
     rename(filename: string)
 
 rename the file.
+
+## date
+
+date extends moment you can refer moment.js official docs for more informatation.
+
+    isYeterday
+
+type boolean
+
+    isToday
+
+type boolean
+
+    isWithinAWeek
+
+type boolean
 
 ## array
 
