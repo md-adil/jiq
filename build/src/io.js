@@ -30,7 +30,7 @@ const path_2 = require("path");
 const parser = __importStar(require("./parser"));
 const file_list_1 = __importDefault(require("./file-list"));
 const os_1 = require("os");
-exports.validTypes = ["txt", "json", "yaml", "csv", "xml", "html", "file"];
+exports.validTypes = ["text", "txt", "json", "yaml", "yml", "csv", "xml", "html", "file"];
 const getFileType = (program, filename) => {
     switch (true) {
         case program.json:

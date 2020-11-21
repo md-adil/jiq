@@ -6,7 +6,7 @@ import * as parser from "./parser";
 import FileList from "./file-list";
 import { EOL } from "os";
 
-export const validTypes = [ "txt", "json", "yaml", "csv", "xml", "html", "file" ] as const;
+export const validTypes = [ "text", "txt", "json", "yaml", "yml", "csv", "xml", "html", "file" ] as const;
 export type FileType = typeof validTypes[number];
 
 const getFileType = (program: any, filename?: string): FileType => {

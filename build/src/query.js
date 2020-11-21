@@ -24,11 +24,12 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.run = exports.build = void 0;
 const lodash_1 = __importDefault(require("lodash"));
+const moment_1 = __importDefault(require("moment"));
 const array_1 = __importDefault(require("./array"));
 const string_1 = __importDefault(require("./string"));
 const obj = __importStar(require("./object"));
-const moment_1 = __importDefault(require("moment"));
 require("./date");
+const filesystem_1 = __importDefault(require("./filesystem"));
 exports.build = (command) => {
     let out = '';
     if (command[0] === '.' || command[0] === '[') {
@@ -81,5 +82,6 @@ exports.run = (command, $) => {
     const date = moment_1.default;
     const values = Object.values;
     const keys = Object.keys;
+    const fs = filesystem_1.default();
     return eval(command);
 };

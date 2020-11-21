@@ -25,7 +25,8 @@ export const parse = (content: string, fileType: FileType) => {
         case "txt":
             return content.split(EOL);
         case "html": {
-            return require("./html")(content);
+            import("./html").then(c => c.default(content))
+            // return require("./html")(content);
         }
         case "file":
             const paths = content.split(EOL);

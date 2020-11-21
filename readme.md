@@ -1,39 +1,37 @@
+# Introduction
+### Javascript Inline Query (jiq) a command line tool.
+Use existing javascript knowledge to query or mutate almost any type data, files and directory.
 
-
-#    A command line tool to manipulate files and directories using javascript
-
-# installation
-
-    yarn global add jiq
-
-or 
+# Installation
 
     npm -g install jiq
 
+or
+
+    yarn global add jiq
+
+
 # Let's start
 
-
-
-files and directory
 
     jiq
 
 output
 
-    ┌───────────────────┬──────────────────┬──────────┬───────────────────┐
-    │ base              │ type             │ size     │ date              │
-    ├───────────────────┼──────────────────┼──────────┼───────────────────┤
-    │ .git              │ directory        │ --       │ nov 7th 10:54 pm  │
-    │ .gitignore        │                  │ 63 B     │ nov 7th 10:54 pm  │
-    │ .npmignore        │                  │ 103 B    │ nov 9th 11:38 pm  │
-    │ .vscode           │ directory        │ --       │ nov 10th 9:56 pm  │
-    │ _config.yml       │ text/yaml        │ 26 B     │ nov 8th 11:32 am  │
-    │ assets            │ directory        │ --       │ nov 9th 11:39 pm  │
-    │ build             │ directory        │ --       │ sun 10:00 pm      │
-    │ docs              │ directory        │ --       │ nov 13th 12:06 am │
+    ┌──────────────┬───────────┬──────┐
+    │ base         │ type      │ size │
+    ├──────────────┼───────────┼──────┤
+    │ .git         │ directory │ --   │
+    │ .vscode      │ directory │ --   │
+    │ assets       │ directory │ --   │
+    │ build        │ directory │ --   │
+    │ docs         │ directory │ --   │
+    │ node_modules │ directory │ --   │
+    │ src          │ directory │ --   │
+    │ stubs        │ directory │ --   │
+    └──────────────┴───────────┴──────┘
 
-
-filter out directories only
+filter directory only
 
     jiq . '.filter(x => x.isDirectory)'
 
@@ -63,6 +61,18 @@ output
 
 goto [File](?id=file) section
 
+let say we have a `package.json` file
+
+    jiq package.json .script
+
+```json
+{
+    "start": "node index.js"
+}
+```
+
+see [JSON](modules?id=json)
+
 get json from url and print as table.
 
     jiq https://reqres.in/api/users '.data' --print table
@@ -80,7 +90,7 @@ output
     │    5    │ 6  │  'tracey.ramos@reqres.in'  │  'Tracey'  │  'Ramos'  │  'https://s3.amazonaws.com/uifaces/faces/twitter/bigmancho/128.jpg'   │
     └─────────┴────┴────────────────────────────┴────────────┴───────────┴───────────────────────────────────────────────────────────────────────┘
 
-see [printer](?id=print)
+see [printer](output?id=print)
 
 with json output
 

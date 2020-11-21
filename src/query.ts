@@ -1,9 +1,11 @@
 import lodash from "lodash";
+import moment from "moment";
+import _ from "lodash";
 import array from "./array";
 import string from "./string";
 import * as obj from "./object";
-import moment from "moment";
 import "./date";
+import filesystem from "./filesystem";
 
 export const build = (command: string) => {
     let out = '';
@@ -59,5 +61,6 @@ export const run = (command: string, $: any ) => {
     const date = moment;
     const values = Object.values;
     const keys = Object.keys;
+    const fs = filesystem();
     return eval(command);
 }

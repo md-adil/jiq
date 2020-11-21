@@ -12,6 +12,7 @@ const fast_xml_parser_1 = __importDefault(require("fast-xml-parser"));
 const table_1 = require("table");
 const file_1 = __importDefault(require("./file"));
 const file_list_1 = __importDefault(require("./file-list"));
+const chalk_1 = __importDefault(require("chalk"));
 const validPrinters = ["json", "table", "txt", "yaml", "xml"];
 function print(data, fileType, printer) {
     if (printer && !validPrinters.includes(printer)) {
@@ -19,7 +20,7 @@ function print(data, fileType, printer) {
     }
     switch (printer) {
         case "table":
-            return console.table(data);
+            return printTable(jsonToTable(data));
         case "json":
             return printJSON(data);
         case "yaml":
@@ -33,10 +34,15 @@ function print(data, fileType, printer) {
     }
     switch (fileType) {
         case "csv":
-            return console.table(data);
+            return printTable(jsonToTable(data));
+        case "yaml":
+        case "yml":
+            process.stdout.write(yaml_1.default.stringify(data));
+            process.stdout.write(os_1.EOL);
         case "json":
             return printJSON(data);
         case "txt":
+        case "text":
             return writeToStdout(data);
         case "file":
             return printFile(data);
@@ -61,32 +67,29 @@ const printFile = (data) => {
     if (!(data instanceof file_list_1.default)) {
         return console.table(data);
     }
-    console.log(table_1.table(data.toTable(), {
+    printTable(data.toTable());
+};
+const printTable = (data) => {
+    process.stdout.write(table_1.table(data, {
         border: table_1.getBorderCharacters("norc"),
         drawHorizontalLine(x, size) {
             return x == 0 || x === 1 || x == size;
         }
     }));
-    return;
+    process.stdout.write(os_1.EOL);
 };
 const printHTML = (data) => {
     if (!data || !data.toTable) {
         return console.log(data);
     }
-    const out = table_1.table(data.toTable(), {
-        border: table_1.getBorderCharacters("norc"),
-        drawHorizontalLine(x, size) {
-            return x == 0 || x === 1 || x == size;
-        }
-    });
-    console.log(out);
+    return printTable(data.toTable());
 };
 const printXML = (data) => {
     const parser = new fast_xml_parser_1.default.j2xParser({ ignoreAttributes: false, format: true });
     console.log(parser.parse(data));
 };
 function writeToStdout(items) {
-    if (Array.isArray(items)) {
+    if (Array.isArray(items) && typeof items[0] === "string") {
         const stream = new stream_1.Readable({
             read(bits) {
                 if (!items.length) {
@@ -103,5 +106,39 @@ function writeToStdout(items) {
         });
         return;
     }
-    console.log(items);
+    printTable(jsonToTable(items));
 }
+const getHeaders = (data) => {
+    if (Array.isArray(data)) {
+        return [true, Object.keys(data[0])];
+    }
+    if (typeof data === "string" || typeof data === "number") {
+        return [false, ["__"]];
+    }
+    return [false, ["key", "value"]];
+};
+const jsonToTable = (data) => {
+    const [iterable, headers] = getHeaders(data);
+    const rows = [headers];
+    if (iterable) {
+        for (const item of data) {
+            const row = [];
+            for (const header of headers) {
+                let val = item[header];
+                if (!isNaN(val)) {
+                    val = chalk_1.default.green(val);
+                }
+                row.push(val);
+            }
+            rows.push(row);
+        }
+        return rows;
+    }
+    for (const x in data) {
+        const row = [
+            x, typeof data[x] === "object" ? JSON.stringify(data[x]) : data[x]
+        ];
+        rows.push(row);
+    }
+    return rows;
+};

@@ -56,32 +56,20 @@ class File {
     get user() {
         return child_process_1.execSync(`id -un ${this.stats.uid}`).toString().trim();
     }
-    getSize(stats) {
-        if (stats.isDirectory()) {
-            return 0;
-        }
-        return stats.size;
-    }
     get read() {
-        if (!this.readable) {
-            return null;
+        if (this.isDirectory) {
+            return fs_1.default.readdirSync(this.base);
         }
         return fs_1.default.readFileSync(this.base, "utf-8");
     }
     get readable() {
-        if (typeof this._isReadable !== 'undefined') {
-            return this._isReadable;
+        return true;
+    }
+    getSize(stats) {
+        if (stats.isDirectory()) {
+            return -1;
         }
-        if (this.stats.isDirectory()) {
-            this._isReadable = false;
-            return false;
-        }
-        if (this.stats.isFile()) {
-            this._isReadable = true;
-            return true;
-        }
-        this._isReadable = false;
-        return this._isReadable;
+        return stats.size;
     }
     rename(name) {
         this.renamed = name;
@@ -108,17 +96,27 @@ class File {
     get isDirectory() {
         return this.stats.isDirectory();
     }
+    get isFile() {
+        return this.stats.isFile();
+    }
+    get readdir() {
+        return fs_1.default.readdirSync(this.base);
+    }
     get empty() {
         if (this.stats.isDirectory()) {
             return fs_1.default.readdirSync(this.location).length === 0;
         }
         return this.size === 0;
     }
+    copy(name, flags) {
+        fs_1.default.copyFileSync(this.base, name, flags);
+        return name;
+    }
     toJSON() {
         return { ...lodash_1.default.pick(this, ["base", "type", "size"]) };
     }
     toString() {
-        return this.name;
+        return this.base;
     }
 }
 exports.default = File;

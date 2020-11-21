@@ -113,6 +113,7 @@ const defaultHeaders = (el) => {
 };
 const defineGetter = (el) => new Proxy(el, {
     get(target, key) {
+        var _a;
         if (key in target) {
             return target[key];
         }
@@ -125,7 +126,7 @@ const defineGetter = (el) => new Proxy(el, {
             return el.prop("tagName");
         }
         if (attr === "class") {
-            return el.attr("class")?.split(" ").join(".");
+            return (_a = el.attr("class")) === null || _a === void 0 ? void 0 : _a.split(" ").join(".");
         }
         if (attr === "html") {
             return el.html();
