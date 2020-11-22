@@ -4,9 +4,9 @@ get all hidden files
 
     jiq . '.filter(x => x.hidden)'
 
-root is [FileList](?id=filelist) object which is child of Array, so any array function will be available.
+root is [FileList](api?id=filelist) object which is child of Array, so any array function will be available.
 
-x is [File](?id=file-1) object
+x is [File](api?id=file) object
 
 output
 

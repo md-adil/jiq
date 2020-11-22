@@ -1,4 +1,23 @@
 "use strict";
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    Object.defineProperty(o, k2, { enumerable: true, get: function() { return m[k]; } });
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
@@ -12,7 +31,7 @@ const fast_xml_parser_1 = __importDefault(require("fast-xml-parser"));
 const table_1 = require("table");
 const file_1 = __importDefault(require("./file"));
 const file_list_1 = __importDefault(require("./file-list"));
-const chalk_1 = __importDefault(require("chalk"));
+const json_to_table_1 = __importStar(require("./json-to-table"));
 const validPrinters = ["json", "table", "txt", "yaml", "xml"];
 function print(data, fileType, printer) {
     if (printer && !validPrinters.includes(printer)) {
@@ -20,7 +39,7 @@ function print(data, fileType, printer) {
     }
     switch (printer) {
         case "table":
-            return printTable(jsonToTable(data));
+            return printTable(data);
         case "json":
             return printJSON(data);
         case "yaml":
@@ -34,7 +53,7 @@ function print(data, fileType, printer) {
     }
     switch (fileType) {
         case "csv":
-            return printTable(jsonToTable(data));
+            return printCSV(data);
         case "yaml":
         case "yml":
             process.stdout.write(yaml_1.default.stringify(data));
@@ -67,9 +86,22 @@ const printFile = (data) => {
     if (!(data instanceof file_list_1.default)) {
         return console.table(data);
     }
-    printTable(data.toTable());
+    printTable(data);
 };
-const printTable = (data) => {
+const printTable = (data, isRaw = false) => {
+    if (data && data.toTable) {
+        isRaw = true;
+        data = data.toTable();
+    }
+    if (!isRaw) {
+        if (Array.isArray(data)) {
+            return console.table(data);
+        }
+        data = json_to_table_1.default(data);
+    }
+    if (!data) {
+        return;
+    }
     process.stdout.write(table_1.table(data, {
         border: table_1.getBorderCharacters("norc"),
         drawHorizontalLine(x, size) {
@@ -82,7 +114,7 @@ const printHTML = (data) => {
     if (!data || !data.toTable) {
         return console.log(data);
     }
-    return printTable(data.toTable());
+    return printTable(data);
 };
 const printXML = (data) => {
     const parser = new fast_xml_parser_1.default.j2xParser({ ignoreAttributes: false, format: true });
@@ -106,39 +138,16 @@ function writeToStdout(items) {
         });
         return;
     }
-    printTable(jsonToTable(items));
+    printTable(items);
 }
-const getHeaders = (data) => {
-    if (Array.isArray(data)) {
-        return [true, Object.keys(data[0])];
+const printCSV = (data) => {
+    if (!Array.isArray(data)) {
+        return printTable(data);
     }
-    if (typeof data === "string" || typeof data === "number") {
-        return [false, ["__"]];
+    const header = Object.keys(data[0]);
+    const tableData = [header];
+    for (const row of data) {
+        tableData.push(header.map(head => json_to_table_1.format(row[head])));
     }
-    return [false, ["key", "value"]];
-};
-const jsonToTable = (data) => {
-    const [iterable, headers] = getHeaders(data);
-    const rows = [headers];
-    if (iterable) {
-        for (const item of data) {
-            const row = [];
-            for (const header of headers) {
-                let val = item[header];
-                if (!isNaN(val)) {
-                    val = chalk_1.default.green(val);
-                }
-                row.push(val);
-            }
-            rows.push(row);
-        }
-        return rows;
-    }
-    for (const x in data) {
-        const row = [
-            x, typeof data[x] === "object" ? JSON.stringify(data[x]) : data[x]
-        ];
-        rows.push(row);
-    }
-    return rows;
+    printTable(tableData, true);
 };

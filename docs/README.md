@@ -59,7 +59,7 @@ output
     
     rename all js files to ts on specified directory
 
-goto [File](?id=file) section
+goto [File](api?id=file), [File List](api?id=filelist) [Array](api?id=array)
 
 let say we have a `package.json` file
 

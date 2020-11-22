@@ -8,10 +8,10 @@ import { table, getBorderCharacters } from "table";
 import File from "./file";
 import FileList from "./file-list";
 import _ from "lodash";
-import chalk from "chalk";
-import { getHashes } from "crypto";
+import jsonToTable, { format } from "./json-to-table";
 
 const validPrinters = [ "json", "table", "txt", "yaml", "xml" ] as const;
+
 export type PrinterTypes = typeof validPrinters[number];
 
 export function print(data: any, fileType: FileType, printer?: PrinterTypes): void {
@@ -20,7 +20,7 @@ export function print(data: any, fileType: FileType, printer?: PrinterTypes): vo
     }
     switch(printer) {
         case "table":
-            return printTable(jsonToTable(data));
+            return printTable(data);
         case "json":
             return printJSON(data);
         case "yaml":
@@ -35,7 +35,7 @@ export function print(data: any, fileType: FileType, printer?: PrinterTypes): vo
 
     switch(fileType) {
         case "csv":
-            return printTable(jsonToTable(data));
+            return printCSV(data);
         case "yaml":
         case "yml":
             process.stdout.write(YAML.stringify(data));
@@ -69,12 +69,27 @@ const printFile = (data: FileList | File) => {
     if (!(data instanceof FileList)) {
         return console.table(data);
     }
-    printTable(data.toTable());
+    printTable(data);
 }
 
-const printTable = (data: string[][]) => {
+const printTable = (data: any, isRaw = false) => {
+    if (data && data.toTable) {
+        isRaw = true;
+        data = data.toTable();
+    }
+
+    if (!isRaw) {
+        if (Array.isArray(data)) {
+            return console.table(data);
+        }
+        data = jsonToTable(data);
+    }
+    if (!data) {
+        return;
+    }
+
     process.stdout.write(
-        table(data, {
+        table(data as any, {
             border: getBorderCharacters("norc"),
             drawHorizontalLine(x, size) {
                 return x == 0 || x === 1 || x == size;
@@ -88,7 +103,7 @@ const printHTML = (data: any) => {
     if (!data || !data.toTable) {
         return console.log(data);
     }
-    return printTable(data.toTable());
+    return printTable(data);
 }
 
 const printXML = (data: any) => {
@@ -114,43 +129,19 @@ function writeToStdout(items: string | (string | number)[]) {
         });
         return;
     }
-    printTable(jsonToTable(items));
+    printTable(items as any);
 }
 
-const getHeaders = (data: any): [boolean, string[]] => {
-    if (Array.isArray(data)) {
-        return [ true, Object.keys(data[0]) ];
+const printCSV = (data: any) => {
+    if (!Array.isArray(data)) {
+        return printTable(data);
     }
-    if (typeof data === "string" || typeof data === "number") {
-        return [ false, [ "__" ] ];
+    const header = Object.keys(data[0]);
+    const tableData = [ header ];
+    for (const row of data) {
+        tableData.push(
+            header.map(head => format(row[head]))
+        )
     }
-    return [ false, [ "key", "value" ] ];
+    printTable(tableData, true);
 }
-
-const jsonToTable = (data: any) => {
-    const [ iterable, headers ] = getHeaders(data);
-    const rows: string[][] = [ headers ];
-
-    if (iterable) {
-        for (const item of data) {
-            const row: string[] = [];
-            for (const header of headers) {
-                let val = item[header];
-                if (!isNaN(val)) {
-                    val = chalk.green(val);
-                }
-                row.push(val);
-            }
-            rows.push(row);
-        }
-        return rows;
-    }
-
-    for (const x in data) {
-        const row: string[] = [
-            x, typeof data[x] === "object" ? JSON.stringify(data[x]) : data[x]
-        ];
-        rows.push(row);
-    }
-    return rows
-};

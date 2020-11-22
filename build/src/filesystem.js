@@ -31,6 +31,11 @@ function filesystem() {
                 fs_1.default.writeFileSync(path_1.default.resolve(name), content);
             }
         },
+        copy: {
+            value(src, dest, flags) {
+                fs_1.default.copyFileSync(src, dest, flags);
+            }
+        },
         touch: {
             value(name) {
                 const time = new Date();
