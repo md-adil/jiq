@@ -166,7 +166,7 @@ class FileList extends Array<File> {
                             file.renamed
                         ].join(EOL);
                     }
-                    if (file.deleted) {
+                    if (file.isDeleted) {
                         return chalk.strikethrough.red(value);
                     }
                     return chalk.blueBright(value);

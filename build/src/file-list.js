@@ -158,7 +158,7 @@ class FileList extends Array {
                             file.renamed
                         ].join(os_1.EOL);
                     }
-                    if (file.deleted) {
+                    if (file.isDeleted) {
                         return chalk_1.default.strikethrough.red(value);
                     }
                     return chalk_1.default.blueBright(value);

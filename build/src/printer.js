@@ -23,7 +23,6 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.print = void 0;
-const stream_1 = require("stream");
 const os_1 = require("os");
 const yaml_1 = __importDefault(require("yaml"));
 const util_1 = __importDefault(require("util"));
@@ -49,7 +48,7 @@ function print(data, fileType, printer) {
         case "xml":
             return printXML(data);
         case "txt":
-            return writeToStdout(data);
+            return printText(data);
     }
     switch (fileType) {
         case "csv":
@@ -58,11 +57,12 @@ function print(data, fileType, printer) {
         case "yml":
             process.stdout.write(yaml_1.default.stringify(data));
             process.stdout.write(os_1.EOL);
+            return;
         case "json":
             return printJSON(data);
         case "txt":
         case "text":
-            return writeToStdout(data);
+            return printText(data);
         case "file":
             return printFile(data);
         case "html":
@@ -120,22 +120,10 @@ const printXML = (data) => {
     const parser = new fast_xml_parser_1.default.j2xParser({ ignoreAttributes: false, format: true });
     console.log(parser.parse(data));
 };
-function writeToStdout(items) {
-    if (Array.isArray(items) && typeof items[0] === "string") {
-        const stream = new stream_1.Readable({
-            read(bits) {
-                if (!items.length) {
-                    return this.push(null);
-                }
-                this.push(items.shift() + os_1.EOL);
-            },
-        });
-        stream.on("error", (err) => {
-            console.log(err.message);
-        });
-        stream.pipe(process.stdout).on("error", (e) => {
-            console.log(e.message);
-        });
+function printText(items) {
+    if (["string", "number"].includes(typeof items)) {
+        process.stdout.write(items);
+        process.stdout.write(os_1.EOL);
         return;
     }
     printTable(items);

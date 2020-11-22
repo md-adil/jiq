@@ -48,46 +48,27 @@ and all other methods and properties of array
 
 # File
 
-## getters
+## Properties
 
-```js
-base // full path reletive to current directory
+* `isHidden (boolean)` is file is hidden, or starts with `.`
+* `isReadable (boolean)` if file can be read by read command
+* `isEmpty (boolean)` file is empty
+* `base (string)`  full path reletive to current directory
+* `name (string)`   filename with extension
+* `ext (string)`  extension of file
+* `location (string)`  full absolute path
+* `date (Date)`  created date (Date)
+* `created (Date)`  created date same as date (Date)
+* `modified (Date)`  modified date (Date)
+* `accessed (Date)`  accessed date (Date)
 
-name  // filename with extension
+    see all [Date](api?id=date)
 
-ext // extension of file
-
-location // full absolute path
-
-date // created date (Date)
-
-created // created date same as date (Date)
-
-modified // modified date (Date)
-
-accessed // accessed date (Date)
-
-user // user of file (linux / mac only)
-
-group // group of file (linux only)
-
-owner // user/group 
-```
-
-see all [Date](api?id=date)
-```js
-
-hidden // file is hidden (boolean)
-
-empty // file empty or not (boolean)
-
-read // contents of file (string)`
-
-isDirectory // check if is directory (boolean)
-
-delete // will delete and will return (boolean)
-
-```
+* `user (string)`  user of file (linux / mac only)
+* `group (string)`  group of file (linux / mac only)
+* `owner (string)`  user/group (linux / mac only) 
+* `read (string)` // contents of file (strin
+* `delete (boolean)` // delete file and return `true` 
 
 ## rename
 * Argunments
@@ -102,26 +83,21 @@ file.rename("users.js")
 # date
 date extends moment you can refer moment.js official docs for more informatation.
 
-## getters
+## Properties
 
-```js
-isYeterday // (boolean)
-
-isToday // (boolean)
-
-isWithinAWeek // (boolean)
-```
+* `isYeterday (boolean)` check if then date is yesterday 
+* `isToday (boolean)` check if date is today
+* `isWithinAWeek (boolean)` same name suggest
+* `isThisWeek (boolean)`
+* `isTwoWeeksOrMore (boolean)`
 
 # Array
 Array supports all native operations.
 
-## getters
+## Properties
 
-```js
-.first // first element
-
-.last // last element
-```
+* `first` first element same as `items[0]`
+* `last` last element same as `items[items.length - 1]`
 
 And all native properties of javascript array like `length`
 
@@ -276,9 +252,9 @@ name and age property will be removed from array of object.
 ## pluck
 * Arguments
     * `[key] (string)`
-    * `[value] (?string)`
+    * `[value] (string)`
 * Return
-    *  `(value[] | {[key: string]: value})`
+    *  `values (string[] | { [key: string]: value })`
 
 array of name property
 
@@ -312,23 +288,28 @@ _
 ## cast
 
 pass all string function to cast on string data.
+* Arguments
+    * `property (castTo | { [ field:string ]: castTo } | { [field: string]: (value) => value })`
+    * `[castTo] (string | (value) => value)`
+* Return
+    * `this`
 
-we have an array of string
+```js
+let items = ["Hello", "World"];
+// all items in the array will be converted to lowercase.
+items.cast("lowercase")
+// output ["hello", "world"]
 
-    cast("lowercase")
+let items = [ {user: { age: "20" }} ];
+// iterate over items find user.age and make them number set it back.
+items.cast("user.age", "number")
+//output [ { user: { age: 20 } } ]
 
-all string will be casted to lower cast
-
-    cast("user.age", "number")
-
-age propert of user object will be casted to number.
-
-    cast({name: (name) => name.lowercase})
-
-use callback to cast data accordingly
-
-    cast
-
+let items = [ { name: "John Doe" } ];
+// iterate over array call the callback with argument name property of element of array and set it's return back to name property.
+items.cast({ name: (name) => name.lowercase})
+// output [{ name: "john doe" }] 
+```
 ```js
 it("string to number", () => {
     expect(cast("123", "number")).equal(123);
@@ -361,29 +342,27 @@ it("nested object", () => {
 
 added some flavour to string.
 
-## getters
+## Properties
 
-```js
-let v = "Hello World";
+`let v = "Hello World"`;
 
-v.uppercase // "HELLO WORLD"
+* `uppercase (string)` "HELLO WORLD"
+* `lowercase (string)` "hello world"
 
-v.lowercase  // "hello world"
+* `camelcase (string)` "helloWorld"
 
-v.camelcase  // "helloWorld"
+* `upperfirst (string)` "Hello world"
 
-v.upperfirst  // "Hello world"
+* `capitalize (string)` "Hello World"
 
-v.capitalize  // "Hello World"
+* `kebabcase (string)` "hello-world"
 
-v.kebabcase  // "hello-world"
+* `snakecase (string)` "hello_world"
 
-v.snakecase  // "hello_world"
+* `words (string[])` [ "Hello", "World" ]
 
-v.words // [ "Hello", "World" ] (array)
+* `lines (string[])` split by new line
 
-lines // split by new line (array)
-```
 ## limit
 * Arguments
     * `lenght (number)` number of char to limits
@@ -394,7 +373,6 @@ lines // split by new line (array)
 let v = "Hello Worlds";
 v.limit(8))//  output "Hello..."
 ```
-
 
 # Pipes
 

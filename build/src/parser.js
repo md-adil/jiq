@@ -16,6 +16,7 @@ exports.parse = (content, fileType) => {
         case "json":
             return JSON.parse(content);
         case "yaml":
+        case "yml":
             return yaml_1.default.parse(content);
         case "csv":
             return sync_1.default(content, {
@@ -25,21 +26,18 @@ exports.parse = (content, fileType) => {
             });
         case "xml":
             return fast_xml_parser_1.default.parse(content, { ignoreAttributes: false });
-        case "txt":
-            return content.split(os_1.EOL);
-        case "html": {
+        case "html":
             return require("./html").default(content);
-        }
-        case "file":
+        case "file": {
             const paths = content.split(os_1.EOL);
-            if (paths.length === 1) {
-                return new file_list_1.default(new file_1.default(paths[0]));
-            }
             const fileList = new file_list_1.default();
             paths.forEach(p => {
                 fileList.push(new file_1.default(p));
             });
             return fileList;
+        }
+        default:
+            return content;
     }
 };
 exports.stringify = (data, fileType) => {

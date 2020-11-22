@@ -58,9 +58,6 @@ const getFileType = (program, filename) => {
         return "txt";
     }
     ext = ext.substr(1);
-    if (!exports.validTypes.includes(ext)) {
-        throw new Error(`${ext} is not recognized format`);
-    }
     return ext;
 };
 const readStream = (cb) => {
@@ -93,7 +90,14 @@ exports.read = (filename, program, callback) => {
     if (fileType === "file") {
         return callback(fileType, file_list_1.default.create(filename));
     }
-    return callback(fileType, parser.parse(fs_1.default.readFileSync(filename, "utf-8"), fileType));
+    return callback(fileType, parser.parse(readFile(filename), fileType));
+};
+const readFile = (filename) => {
+    let contents = fs_1.default.readFileSync(filename, "utf-8");
+    if (contents.endsWith(os_1.EOL)) {
+        contents = contents.slice(0, -1);
+    }
+    return contents;
 };
 exports.write = (data, filename, fileType) => {
     const ext = path_2.extname(filename);

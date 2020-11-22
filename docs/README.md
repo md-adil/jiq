@@ -63,7 +63,7 @@ goto [File](api?id=file), [File List](api?id=filelist) [Array](api?id=array)
 
 let say we have a `package.json` file
 
-    jiq package.json .script
+    jiq package.json .scripts
 
 ```json
 {

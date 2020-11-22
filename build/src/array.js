@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.picker = exports.at = void 0;
+exports.filter = exports.picker = exports.at = void 0;
 const lodash_1 = __importDefault(require("lodash"));
 const object_1 = require("./object");
 const parseRange = ([x, y], length) => {
@@ -48,7 +48,7 @@ exports.at = (items, ...args) => {
 };
 exports.picker = (...fields) => {
     let out = {};
-    if (typeof fields[0] === "string") {
+    if (["string", "number"].includes(typeof fields[0])) {
         for (const field of fields) {
             out[field] = (data) => lodash_1.default.get(data, field);
         }
@@ -67,11 +67,31 @@ exports.picker = (...fields) => {
     out = fields[0];
     for (const field in out) {
         const callback = out[field];
-        if (typeof callback === "string") {
+        if (["number", "string"].includes(typeof callback)) {
             out[field] = (data) => lodash_1.default.get(data, callback);
         }
     }
     return out;
+};
+const arrayFilter = Array.prototype.filter;
+exports.filter = (data, prop, val) => {
+    if (typeof prop === "function") {
+        return arrayFilter.call(data, prop, val);
+    }
+    if (!prop) {
+        return data.filter(x => x);
+    }
+    if (!val) {
+        val = prop;
+        if (val instanceof RegExp) {
+            return data.filter(x => val.test(x));
+        }
+        return data.filter(x => x === val);
+    }
+    if (val instanceof RegExp) {
+        return data.filter(x => val.test(lodash_1.default.get(x, prop)));
+    }
+    return data.filter(x => lodash_1.default.get(x, prop) === val);
 };
 function array() {
     Object.defineProperties(Array.prototype, {
@@ -123,14 +143,11 @@ function array() {
         },
         pluck: {
             value(key, val) {
-                if (typeof val === "function") {
-                    return this.reduce((prev, current) => (prev[lodash_1.default.get(current, key)] = val(current), prev), {});
-                }
-                if (val === ".") {
-                    return this.reduce((prev, current) => (prev[lodash_1.default.get(current, key)] = current, prev), {});
-                }
                 if (val !== undefined) {
                     return this.reduce((prev, current) => (prev[lodash_1.default.get(current, key)] = lodash_1.default.get(current, val), prev), {});
+                }
+                if (typeof val === "function") {
+                    return this.reduce((prev, current) => (prev[lodash_1.default.get(current, key)] = val(current), prev), {});
                 }
                 return this.map((item) => lodash_1.default.get(item, key));
             }
@@ -139,6 +156,11 @@ function array() {
             value(callback) {
                 this.forEach(callback);
                 return this;
+            }
+        },
+        filter: {
+            value(key, val) {
+                return exports.filter(this, key, val);
             }
         },
         at: {

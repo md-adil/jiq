@@ -9,9 +9,10 @@ const lodash_1 = __importDefault(require("lodash"));
 const moment_1 = __importDefault(require("moment"));
 const child_process_1 = require("child_process");
 const mime_types_1 = require("mime-types");
+const os_1 = require("os");
 class File {
     constructor(base, stats) {
-        this.deleted = false;
+        this.isDeleted = false;
         this.base = base;
         this.location = path_1.default.resolve(base);
         const pathInfo = path_1.default.parse(base);
@@ -42,13 +43,15 @@ class File {
         return moment_1.default(this.stats.atime);
     }
     get group() {
-        const id = this.stats.gid;
-        if (File.groups.has(id)) {
-            return File.groups.get(id);
+        if (!File.groups.size) {
+            File.groups = fs_1.default.readFileSync("/etc/group", "utf-8").split(os_1.EOL).reduce((groups, line) => {
+                const [name, , id] = line.split(":");
+                groups.set(parseInt(id), name);
+                return groups;
+            }, new Map());
         }
-        const name = child_process_1.execSync(`getent group ${id} | cut -d: -f1`).toString().trim();
-        File.groups.set(id, name);
-        return name;
+        const id = this.stats.gid;
+        return File.groups.get(id);
     }
     get owner() {
         return `${this.user}/${this.group}`;
@@ -58,12 +61,18 @@ class File {
     }
     get read() {
         if (this.isDirectory) {
-            return fs_1.default.readdirSync(this.base);
+            return;
         }
         return fs_1.default.readFileSync(this.base, "utf-8");
     }
-    get readable() {
-        return true;
+    get files() {
+        if (!this.isDirectory) {
+            return;
+        }
+        return require("./file-list").default.create(this.base);
+    }
+    get isReadable() {
+        return this.isFile;
     }
     getSize(stats) {
         if (stats.isDirectory()) {
@@ -85,12 +94,12 @@ class File {
         }
         return mime_types_1.lookup(this.location) || this.ext;
     }
-    get hidden() {
+    get isHidden() {
         return this.name.startsWith('.');
     }
     get delete() {
         fs_1.default.unlinkSync(this.base);
-        this.deleted = true;
+        this.isDeleted = true;
         return true;
     }
     get isDirectory() {
@@ -102,9 +111,9 @@ class File {
     get readdir() {
         return fs_1.default.readdirSync(this.base);
     }
-    get empty() {
+    get isEmpty() {
         if (this.stats.isDirectory()) {
-            return fs_1.default.readdirSync(this.location).length === 0;
+            return this.readdir.length === 0;
         }
         return this.size === 0;
     }

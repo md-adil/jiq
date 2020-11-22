@@ -13,6 +13,7 @@ export const parse = (content: string, fileType: FileType) => {
         case "json":
             return JSON.parse(content);
         case "yaml":
+        case "yml":
             return YAML.parse(content);
         case "csv":
             return csvParse(content, {
@@ -22,21 +23,18 @@ export const parse = (content: string, fileType: FileType) => {
             });
         case "xml":
             return XML.parse(content, { ignoreAttributes: false });
-        case "txt":
-            return content.split(EOL);
-        case "html": {
+        case "html":
             return require("./html").default(content);
-        }
-        case "file":
+        case "file": {
             const paths = content.split(EOL);
-            if (paths.length === 1) {
-                return new FileList(new File(paths[0]));
-            }
             const fileList = new FileList();
             paths.forEach(p => {
                 fileList.push(new File(p));
-            })
+            });
             return fileList;
+        }
+        default:
+            return content;
     }
 };
 

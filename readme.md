@@ -63,7 +63,7 @@ goto [File](?id=file) section
 
 let say we have a `package.json` file
 
-    jiq package.json .script
+    jiq package.json .scripts
 
 ```json
 {

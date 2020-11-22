@@ -54,7 +54,7 @@ export const at = (items: any[], ...args: any[])  => {
 
 export const picker = (...fields: any[]): Picker => {
     let out: Picker = {};
-    if (typeof fields[0] === "string") {
+    if (["string", "number"].includes(typeof fields[0])) {
         for (const field of fields) {
             out[field] = (data) => _.get(data, field);
         }
@@ -75,11 +75,36 @@ export const picker = (...fields: any[]): Picker => {
     out = fields[0];
     for (const field in out) {
         const callback = out[field];
-        if (typeof callback === "string") {
-            out[field] = (data) => _.get(data, callback);
+        if (["number", "string"].includes(typeof callback)) {
+            out[field] = (data) => _.get(data, callback as any);
         }
     }
     return out;
+}
+
+const arrayFilter = Array.prototype.filter;
+export const filter = <T = any>(data: T[], prop?: any, val?: any): T[] => {
+    if (typeof prop === "function") {
+        return arrayFilter.call(data, prop, val);
+    }
+
+    if (!prop) {
+        return data.filter(x => x);
+    }
+
+    if (!val) {
+        val = prop;
+        if (val instanceof RegExp) {
+            return data.filter( x => val.test(x));
+        }
+        return data.filter( x => x === val);
+    }
+
+    if (val instanceof RegExp) {
+        return data.filter( x => val.test(_.get(x, prop)));
+    }
+
+    return data.filter( x => _.get(x, prop) === val);
 }
 
 export default function array() {
@@ -132,14 +157,11 @@ export default function array() {
         },
         pluck: {
             value(key: string, val?: any) {
-                if (typeof val === "function") {
-                    return this.reduce((prev: any, current: any) => (prev[_.get(current, key)] = val(current), prev), {});
-                }
-                if (val === ".") {
-                    return this.reduce((prev: any, current: any) => (prev[_.get(current, key)] = current, prev), {});
-                }
                 if (val !== undefined) {
                     return this.reduce((prev: any, current: any) => (prev[_.get(current, key)] = _.get(current, val), prev), {});
+                }
+                if (typeof val === "function") {
+                    return this.reduce((prev: any, current: any) => (prev[_.get(current, key)] = val(current), prev), {});
                 }
                 return this.map((item: any) => _.get(item, key));
             }
@@ -148,6 +170,11 @@ export default function array() {
             value(callback: (x:any) => any) {
                 this.forEach(callback);
                 return this;
+            }
+        },
+        filter: {
+            value(key: string, val?: any) {
+                return filter(this, key, val)
             }
         },
         at: {

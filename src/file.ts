@@ -3,7 +3,8 @@ import path from "path";
 import _ from "lodash";
 import moment, { Moment } from "moment";
 import { execSync } from "child_process";
-import {lookup} from "mime-types";
+import { lookup } from "mime-types";
+import { EOL } from "os";
 export default class File {
     static groups = new Map<number, string>();
     public readonly name: string;
@@ -15,7 +16,7 @@ export default class File {
     public readonly stats: fs.Stats;
     public readonly pathInfo: path.ParsedPath;
     public readonly location: string;
-    public deleted = false;
+    public isDeleted = false;
     public renamed ?: string;
     private _isReadable?: boolean;
 
@@ -56,13 +57,15 @@ export default class File {
     }
 
     get group() {
-        const id = this.stats.gid;
-        if (File.groups.has(id)) {
-            return File.groups.get(id)!;
+        if (!File.groups.size) {
+            File.groups = fs.readFileSync("/etc/group", "utf-8").split(EOL).reduce((groups, line) => {
+                const [name, , id] = line.split(":")
+                groups.set(parseInt(id), name);
+                return groups;
+            }, new Map<number, string>());
         }
-        const name = execSync(`getent group ${id} | cut -d: -f1`).toString().trim();
-        File.groups.set(id, name);
-        return name;
+        const id = this.stats.gid;
+        return File.groups.get(id)!;
     }
 
     get owner() {
@@ -72,17 +75,23 @@ export default class File {
     get user() {
         return execSync(`id -un ${this.stats.uid}`).toString().trim();
     }
-
    
     get read() {
         if (this.isDirectory) {
-            return fs.readdirSync(this.base);
+            return;
         }
         return fs.readFileSync(this.base, "utf-8");
     }
 
-    get readable() {
-        return true;
+    get files() {
+        if (!this.isDirectory) {
+            return;
+        }
+        return require("./file-list").default.create(this.base);
+    }
+
+    get isReadable() {
+        return this.isFile;
     }
 
     getSize(stats: fs.Stats) {
@@ -109,13 +118,13 @@ export default class File {
         return lookup(this.location) || this.ext;
     }
 
-    get hidden() {
+    get isHidden() {
         return this.name.startsWith('.');
     }
 
     get delete() {
         fs.unlinkSync(this.base)
-        this.deleted = true;
+        this.isDeleted = true;
         return true;
     }
 
@@ -131,9 +140,9 @@ export default class File {
         return fs.readdirSync(this.base);
     }
 
-    get empty() {
+    get isEmpty() {
         if (this.stats.isDirectory()) {
-            return fs.readdirSync(this.location).length === 0;
+            return this.readdir.length === 0;
         }
         return this.size === 0;
     }

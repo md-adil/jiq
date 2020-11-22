@@ -1,9 +1,8 @@
 import { assert, expect } from "chai";
-import { picker as pick, at } from "../src/array";
+import { picker as pick, at, filter } from "../src/array";
 
 describe("array", () => {
     describe("picker", () => {
-
         it("list of fields", () => {
             const data = pick("name", "age");
             assert.equal(data.name({ name: "hello" }), "hello");
@@ -30,6 +29,40 @@ describe("array", () => {
         it("pick with index", () => {
             const data = pick(["name"]);
             assert.equal(data.name(["Adil"]), "Adil");
+        });
+    });
+
+    describe("#filter", () => {
+        it("With callback", () => {
+            expect( filter([ "john" ], (x: any) => x === "john")).to.eql([ "john" ])
+        })
+
+        it("without any argument, should return truthy values only", () => {
+            expect(filter(["name", "", "hello"])).to.eql([ "name", "hello" ]);
+        });
+
+        it("with value on main field", () => {
+            expect(filter(["name", "", "hello"], "hello")).to.eql([ "hello" ]);
+        });
+
+        it("with regex on main field", () => {
+            expect(filter(["name", "", "hello"], /^h/)).to.eql([ "hello" ]);
+        });
+
+        it("with regex on nested field", () => {
+            const data = [
+                { name: "John" },
+                { name: "Doe" }
+            ]
+            expect(filter(data, 'name', /^J/)).to.eql([ { name: 'John' } ]);
+        });
+
+        it("with regex on nested value", () => {
+            const data = [
+                { name: "John" },
+                { name: "Doe" }
+            ]
+            expect(filter(data, 'name', "Doe")).to.eql([ { name: 'Doe' } ]);
         });
     });
 

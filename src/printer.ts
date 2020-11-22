@@ -9,9 +9,7 @@ import File from "./file";
 import FileList from "./file-list";
 import _ from "lodash";
 import jsonToTable, { format } from "./json-to-table";
-
 const validPrinters = [ "json", "table", "txt", "yaml", "xml" ] as const;
-
 export type PrinterTypes = typeof validPrinters[number];
 
 export function print(data: any, fileType: FileType, printer?: PrinterTypes): void {
@@ -30,7 +28,7 @@ export function print(data: any, fileType: FileType, printer?: PrinterTypes): vo
         case "xml":
             return printXML(data);
         case "txt":
-            return writeToStdout(data);
+            return printText(data);
     }
 
     switch(fileType) {
@@ -40,11 +38,12 @@ export function print(data: any, fileType: FileType, printer?: PrinterTypes): vo
         case "yml":
             process.stdout.write(YAML.stringify(data));
             process.stdout.write(EOL);
+            return;
         case "json":
             return printJSON(data);
         case "txt":
         case "text":
-            return writeToStdout(data);
+            return printText(data);
         case "file":
             return printFile(data);
         case "html":
@@ -111,22 +110,10 @@ const printXML = (data: any) => {
     console.log(parser.parse(data));
 }
 
-function writeToStdout(items: string | (string | number)[]) {
-    if (Array.isArray(items) && typeof items[0] === "string") {
-        const stream = new Readable({
-            read(bits) {
-                if (!items.length) {
-                    return this.push(null);
-                }
-                this.push(items.shift() + EOL);
-            },
-        });
-        stream.on("error", (err) => {
-            console.log(err.message);
-        });
-        stream.pipe(process.stdout).on("error", (e) => {
-            console.log(e.message);
-        });
+function printText(items: string | (string | number)[]) {
+    if (["string", "number"].includes(typeof items)) {
+        process.stdout.write(items as string);
+        process.stdout.write(EOL);
         return;
     }
     printTable(items as any);

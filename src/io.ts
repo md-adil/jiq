@@ -37,9 +37,6 @@ const getFileType = (program: any, filename?: string): FileType => {
         return "txt";
     }
     ext = ext.substr(1);
-    if (!validTypes.includes(ext as any)) {
-        throw new Error(`${ext} is not recognized format`);
-    }
     return ext as FileType;
 }
 
@@ -75,7 +72,15 @@ export const read = (filename: string | undefined, program: any, callback: (file
     if (fileType === "file") {
         return callback(fileType, FileList.create(filename));
     }
-    return callback(fileType, parser.parse(fs.readFileSync(filename, "utf-8"), fileType));
+    return callback(fileType, parser.parse(readFile(filename), fileType));
+}
+
+const readFile = (filename: string) => {
+    let contents = fs.readFileSync(filename, "utf-8");
+    if (contents.endsWith(EOL)) {
+        contents = contents.slice(0, -1);
+    }
+    return contents;
 }
 
 export const write = (data: any, filename: string, fileType: FileType) => {

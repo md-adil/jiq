@@ -2,7 +2,7 @@
 
 get all hidden files
 
-    jiq . '.filter(x => x.hidden)'
+    jiq . '.filter(x => x.isHidden)'
 
 root is [FileList](api?id=filelist) object which is child of Array, so any array function will be available.
 
@@ -30,6 +30,19 @@ output
     b.txt
     c.txt
 
+system user with shell
+
+    jiq /etc/passwd '.lines.filter(x => !x.startsWith("#")).map(x => x.split(":")).pick({User: 0, Shell: 6})'
+
+output
+
+    ┌─────────┬──────────────────────────┬────────────────────┐
+    │ (index) │           User           │       Shell        │
+    ├─────────┼──────────────────────────┼────────────────────┤
+    │    0    │         'nobody'         │  '/usr/bin/false'  │
+    │    1    │          'root'          │     '/bin/sh'      │
+    │    2    │         'daemon'         │  '/usr/bin/false'  │
+    │    3    │         '_uucp'          │ '/usr/sbin/uucico' │
 
 ## JSON
 
