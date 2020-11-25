@@ -9,7 +9,6 @@ const lodash_1 = __importDefault(require("lodash"));
 const moment_1 = __importDefault(require("moment"));
 const child_process_1 = require("child_process");
 const mime_types_1 = require("mime-types");
-const os_1 = require("os");
 class File {
     constructor(base, stats) {
         this.isDeleted = false;
@@ -43,14 +42,11 @@ class File {
         return moment_1.default(this.stats.atime);
     }
     get group() {
-        if (!File.groups.size) {
-            File.groups = fs_1.default.readFileSync("/etc/group", "utf-8").split(os_1.EOL).reduce((groups, line) => {
-                const [name, , id] = line.split(":");
-                groups.set(parseInt(id), name);
-                return groups;
-            }, new Map());
-        }
         const id = this.stats.gid;
+        if (!File.groups.has(id)) {
+            const name = child_process_1.execSync(`grep ':${id}:' /etc/group | cut -d ':' -f 1`).toString().trim();
+            File.groups.set(id, name);
+        }
         return File.groups.get(id);
     }
     get owner() {

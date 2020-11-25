@@ -57,14 +57,11 @@ export default class File {
     }
 
     get group() {
-        if (!File.groups.size) {
-            File.groups = fs.readFileSync("/etc/group", "utf-8").split(EOL).reduce((groups, line) => {
-                const [name, , id] = line.split(":")
-                groups.set(parseInt(id), name);
-                return groups;
-            }, new Map<number, string>());
-        }
         const id = this.stats.gid;
+        if (!File.groups.has(id)) {
+            const name = execSync(`grep ':${id}:' /etc/group | cut -d ':' -f 1`).toString().trim();
+            File.groups.set(id, name);
+        }
         return File.groups.get(id)!;
     }
 
@@ -100,7 +97,6 @@ export default class File {
         }
         return stats.size;
     }
-
 
     rename(name: string) {
         this.renamed = name;
