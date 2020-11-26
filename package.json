@@ -1,14 +1,15 @@
 {
     "name": "jiq",
     "version": "0.0.8",
-    "description": "Use existing javascript knowledge to query or mutate data",
+    "description": "Use existing javascript knowledge to query or modify data",
     "keywords": [
         "javascript inline query",
         "json query",
         "json inline query",
         "json",
         "yaml",
-        "query"
+        "files",
+        "directory"
     ],
     "main": "build/src/index.js",
     "author": {

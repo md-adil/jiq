@@ -1,6 +1,6 @@
 # Introduction
 ### Javascript Inline Query (jiq) a command line tool.
-Use existing javascript knowledge to query or mutate almost any type data, files and directory.
+Use existing javascript knowledge to query or modify almost any type data, files and directory.
 
 # Installation
 
