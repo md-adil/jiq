@@ -118,7 +118,7 @@ class File {
         return name;
     }
     toJSON() {
-        return { ...lodash_1.default.pick(this, ["base", "type", "size"]) };
+        return { ...lodash_1.default.pick(this, ["base", "type", "size", "date"]) };
     }
     toString() {
         return this.base;

@@ -81,7 +81,7 @@ exports.filter = (data, prop, val) => {
     if (!prop) {
         return data.filter(x => x);
     }
-    if (!val) {
+    if (typeof val === "undefined") {
         val = prop;
         if (val instanceof RegExp) {
             return data.filter(x => val.test(x));

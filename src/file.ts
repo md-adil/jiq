@@ -5,6 +5,8 @@ import moment, { Moment } from "moment";
 import { execSync } from "child_process";
 import { lookup } from "mime-types";
 import { EOL } from "os";
+import { humanize } from "./date";
+import { filesize } from "./humanize";
 export default class File {
     static groups = new Map<number, string>();
     public readonly name: string;
@@ -149,7 +151,7 @@ export default class File {
     }
 
     toJSON() {
-        return { ..._.pick(this, [ "base", "type", "size" ]) };
+        return { ..._.pick(this, [ "base", "type", "size", "date" ]) };
     }
 
     toString() {

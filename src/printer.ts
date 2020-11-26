@@ -9,6 +9,7 @@ import File from "./file";
 import FileList from "./file-list";
 import _ from "lodash";
 import jsonToTable, { format } from "./json-to-table";
+
 const validPrinters = [ "json", "table", "txt", "yaml", "xml" ] as const;
 export type PrinterTypes = typeof validPrinters[number];
 
@@ -65,9 +66,6 @@ const printFile = (data: FileList | File) => {
     if (data instanceof File) {
         data = new FileList(data);
     }
-    if (!(data instanceof FileList)) {
-        return console.table(data);
-    }
     printTable(data);
 }
 
@@ -112,7 +110,7 @@ const printXML = (data: any) => {
 
 function printText(items: string | (string | number)[]) {
     if (["string", "number"].includes(typeof items)) {
-        process.stdout.write(items as string);
+        process.stdout.write(items.toString());
         process.stdout.write(EOL);
         return;
     }

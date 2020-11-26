@@ -83,9 +83,6 @@ const printFile = (data) => {
     if (data instanceof file_1.default) {
         data = new file_list_1.default(data);
     }
-    if (!(data instanceof file_list_1.default)) {
-        return console.table(data);
-    }
     printTable(data);
 };
 const printTable = (data, isRaw = false) => {
@@ -122,7 +119,7 @@ const printXML = (data) => {
 };
 function printText(items) {
     if (["string", "number"].includes(typeof items)) {
-        process.stdout.write(items);
+        process.stdout.write(items.toString());
         process.stdout.write(os_1.EOL);
         return;
     }

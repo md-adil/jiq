@@ -39,10 +39,6 @@ will build create field from file
 
 will alias name to file name
 
-    append(fields: string[])
-
-add more fields to print
-
 
 and all other methods and properties of array
 
@@ -100,23 +96,6 @@ Array supports all native operations.
 * `last` last element same as `items[items.length - 1]`
 
 And all native properties of javascript array like `length`
-
-## index
-```js
-$[1] // Get item from index 1
-
-$[1,2] // Get array of items at index 1, 2
-
-[1:4] // Get array of items from index 1 to index 4
-
-[-4:] // Get last 4 item
-
-[:-4] // Get all items except last 4
-
-[-4:-2] // Get last 4 to last 2 items
-
-```
-behind the scene it usage [at](api?id=at) function.
 
 ## at
 * Arguments
@@ -284,6 +263,14 @@ output
     }
 _
 
+
+## filter
+
+* Arguments
+    * `filter (string | number | RegExp | (value) => any )`
+    * `[value] (string | number | RegExp)`
+* Return
+    * `this`
 
 ## cast
 
