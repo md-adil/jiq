@@ -10,6 +10,7 @@ const sync_1 = __importDefault(require("csv-parse/lib/sync"));
 const sync_2 = __importDefault(require("csv-stringify/lib/sync"));
 const fast_xml_parser_1 = __importDefault(require("fast-xml-parser"));
 const file_1 = __importDefault(require("./file"));
+const dotenv_1 = __importDefault(require("dotenv"));
 const file_list_1 = __importDefault(require("./file-list"));
 exports.parse = (content, fileType) => {
     switch (fileType) {
@@ -36,6 +37,8 @@ exports.parse = (content, fileType) => {
             });
             return fileList;
         }
+        case "env":
+            return dotenv_1.default.parse(content);
         default:
             return content;
     }

@@ -29,6 +29,9 @@ exports.format = (val) => {
     return val;
 };
 exports.flatObject = (data) => {
+    if (!data) {
+        return data;
+    }
     if (data.toJSON) {
         return data.toJSON();
     }

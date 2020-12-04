@@ -6,7 +6,7 @@ import * as parser from "./parser";
 import FileList from "./file-list";
 import { EOL } from "os";
 
-export const validTypes = [ "text", "txt", "json", "yaml", "yml", "csv", "xml", "html", "file" ] as const;
+export const validTypes = [ "text", "txt", "json", "yaml", "yml", "csv", "xml", "html", "file", "env" ] as const;
 export type FileType = typeof validTypes[number];
 
 const getFileType = (program: any, filename?: string): FileType => {
@@ -32,6 +32,10 @@ const getFileType = (program: any, filename?: string): FileType => {
     if (stats.isDirectory()) {
         return "file";
     }
+    if (filename.startsWith(".env")) {
+        return "env";
+    }
+
     let ext = extname(filename);
     if (!ext) {
         return "txt";
@@ -70,7 +74,7 @@ export const read = (filename: string | undefined, program: any, callback: (file
     }
     const fileType = getFileType(program, filename);
     if (fileType === "file") {
-        return callback(fileType, FileList.create(filename));
+        return callback(fileType, FileList.create(filename, program.recursive));
     }
     return callback(fileType, parser.parse(readFile(filename), fileType));
 }

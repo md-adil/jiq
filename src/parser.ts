@@ -5,6 +5,7 @@ import type { FileType } from "./io";
 import csvStringify from "csv-stringify/lib/sync";
 import XML from "fast-xml-parser";
 import File from "./file";
+import dotenv from "dotenv";
 
 import FileList from "./file-list";
 
@@ -33,6 +34,8 @@ export const parse = (content: string, fileType: FileType) => {
             });
             return fileList;
         }
+        case "env":
+            return dotenv.parse(content);
         default:
             return content;
     }

@@ -88,7 +88,7 @@ export const filter = <T = any>(data: T[], prop?: any, val?: any): T[] => {
         return arrayFilter.call(data, prop, val);
     }
 
-    if (!prop) {
+    if (typeof prop === "undefined") {
         return data.filter(x => x);
     }
 

@@ -78,7 +78,7 @@ exports.filter = (data, prop, val) => {
     if (typeof prop === "function") {
         return arrayFilter.call(data, prop, val);
     }
-    if (!prop) {
+    if (typeof prop === "undefined") {
         return data.filter(x => x);
     }
     if (typeof val === "undefined") {

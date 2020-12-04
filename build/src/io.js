@@ -30,7 +30,7 @@ const path_2 = require("path");
 const parser = __importStar(require("./parser"));
 const file_list_1 = __importDefault(require("./file-list"));
 const os_1 = require("os");
-exports.validTypes = ["text", "txt", "json", "yaml", "yml", "csv", "xml", "html", "file"];
+exports.validTypes = ["text", "txt", "json", "yaml", "yml", "csv", "xml", "html", "file", "env"];
 const getFileType = (program, filename) => {
     switch (true) {
         case program.json:
@@ -52,6 +52,9 @@ const getFileType = (program, filename) => {
     const stats = fs_1.default.statSync(path_1.default.resolve(filename));
     if (stats.isDirectory()) {
         return "file";
+    }
+    if (filename.startsWith(".env")) {
+        return "env";
     }
     let ext = path_2.extname(filename);
     if (!ext) {
@@ -88,7 +91,7 @@ exports.read = (filename, program, callback) => {
     }
     const fileType = getFileType(program, filename);
     if (fileType === "file") {
-        return callback(fileType, file_list_1.default.create(filename));
+        return callback(fileType, file_list_1.default.create(filename, program.recursive));
     }
     return callback(fileType, parser.parse(readFile(filename), fileType));
 };

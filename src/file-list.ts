@@ -9,12 +9,28 @@ import moment from "moment";
 import { humanize } from "./date";
 import { picker } from "./array";
 
+
+const walk = (loc: string, files = new FileList()) => {
+    const stats = fs.statSync(loc);
+    if (stats.isDirectory()) {
+        for(const l of fs.readdirSync(path.resolve(loc))) {
+            walk(path.join(loc, l), files);
+        }
+    } else {
+        files.push(new File(loc, stats));
+    }
+    return files;
+}
+
 type Header = {
     [key: string]: (file: File) => string;
 }
 
 class FileList extends Array<File> {
-    static create(loc: string): FileList | File {
+    static create(loc: string, isRecursive = false): FileList | File {
+        if (isRecursive) {
+            return walk(loc);
+        }
         const fullpath = path.resolve(loc);
         const stats = fs.statSync(fullpath);
         if (stats.isFile()) {

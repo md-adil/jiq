@@ -12,6 +12,18 @@ const os_1 = require("os");
 const moment_1 = __importDefault(require("moment"));
 const date_1 = require("./date");
 const array_1 = require("./array");
+const walk = (loc, files = new FileList()) => {
+    const stats = fs_1.default.statSync(loc);
+    if (stats.isDirectory()) {
+        for (const l of fs_1.default.readdirSync(path_1.default.resolve(loc))) {
+            walk(path_1.default.join(loc, l), files);
+        }
+    }
+    else {
+        files.push(new file_1.default(loc, stats));
+    }
+    return files;
+};
 class FileList extends Array {
     constructor() {
         super(...arguments);
@@ -38,7 +50,10 @@ class FileList extends Array {
             }
         };
     }
-    static create(loc) {
+    static create(loc, isRecursive = false) {
+        if (isRecursive) {
+            return walk(loc);
+        }
         const fullpath = path_1.default.resolve(loc);
         const stats = fs_1.default.statSync(fullpath);
         if (stats.isFile()) {

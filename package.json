@@ -47,6 +47,7 @@
         "commander": "^6.2.0",
         "csv-parse": "^4.14.0",
         "csv-stringify": "^5.5.1",
+        "dotenv": "^8.2.0",
         "fast-xml-parser": "^3.17.4",
         "lodash": "^4.17.20",
         "mime-types": "^2.1.27",

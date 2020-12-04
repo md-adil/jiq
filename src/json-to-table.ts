@@ -24,6 +24,9 @@ export const format = (val: any) => {
 }
 
 export const flatObject = (data: any): any => {
+    if (!data) {
+        return data;
+    }
     if (data.toJSON) {
         return data.toJSON();
     }
