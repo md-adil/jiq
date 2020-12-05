@@ -9,7 +9,6 @@ import moment from "moment";
 import { humanize } from "./date";
 import { picker } from "./array";
 
-
 const walk = (loc: string, files = new FileList()) => {
     const stats = fs.statSync(loc);
     if (stats.isDirectory()) {

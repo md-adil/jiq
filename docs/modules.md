@@ -2,9 +2,11 @@
 
 get all hidden files
 
-    jiq . '.filter(x => x.isHidden)'
+    jiq . '.filter(x => x.isHidden)' -r
 
 root is [FileList](api?id=filelist) object which is child of Array, so any array function will be available.
+
+`-r` / `--recursive` search files recursive
 
 x is [File](api?id=file) object
 
@@ -185,6 +187,24 @@ or
 output
     
     json output from response and take 10 records from top
+
+## .env
+
+.env
+```env
+name="JIQ Project"
+version=2
+```
+
+    jiq .env
+
+output
+
+```json
+{ name: 'JIQ Project', version: '2' }
+```
+
+
 
 ## CSV
 

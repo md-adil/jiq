@@ -53,7 +53,7 @@ function main(filename, rawQuery) {
 commander_1.program.version(version);
 commander_1.program
     .option('--json', 'tell the program it\'s json content')
-    .option('--recursive', 'recursive files')
+    .option('-r, --recursive', 'recursive files')
     .option('--text', 'tell the program it\'s text content')
     .option('--yaml', 'tell the program it\'s yaml content')
     .option('--html', 'tell the program it\'s html content')

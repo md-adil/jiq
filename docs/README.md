@@ -11,6 +11,10 @@ or
     yarn global add jiq
 
 
+# Usage
+
+    jiq <file/path/url> <your javascript where $ holds data>
+
 # Let's start
 
 
