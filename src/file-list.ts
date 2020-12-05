@@ -12,8 +12,12 @@ import { picker } from "./array";
 const walk = (loc: string, files = new FileList()) => {
     const stats = fs.statSync(loc);
     if (stats.isDirectory()) {
-        for(const l of fs.readdirSync(path.resolve(loc))) {
-            walk(path.join(loc, l), files);
+        try {
+            for(const l of fs.readdirSync(path.resolve(loc))) {
+                walk(path.join(loc, l), files);
+            }
+        } catch(err) {
+            console.error(chalk.red(err.message));
         }
     } else {
         files.push(new File(loc, stats));
@@ -32,22 +36,23 @@ class FileList extends Array<File> {
         }
         const fullpath = path.resolve(loc);
         const stats = fs.statSync(fullpath);
-        if (stats.isFile()) {
-            return new File(loc, stats);
-        }
         if (stats.isDirectory()) {
-            const contents = fs.readdirSync(fullpath);
-            const files = new FileList();
-            for (const p of contents) {
-                try {
-                    const stats = fs.statSync(path.resolve(loc, p));
-                    files.push(new File(path.join(loc, p), stats));
-                } catch(err) {
+            try {
+                const contents = fs.readdirSync(fullpath);
+                const files = new FileList();
+                for (const p of contents) {
+                    try {
+                        const stats = fs.statSync(path.resolve(loc, p));
+                        files.push(new File(path.join(loc, p), stats));
+                    } catch(err) {
+                    }
                 }
+                return files;
+            } catch(err) {
+                console.error(chalk.red(err.message));
             }
-            return files;
         }
-        throw new Error("Not a valid file");
+        return new File(loc, stats);
     }
 
     headers: Header = {

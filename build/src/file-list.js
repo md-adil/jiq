@@ -15,8 +15,13 @@ const array_1 = require("./array");
 const walk = (loc, files = new FileList()) => {
     const stats = fs_1.default.statSync(loc);
     if (stats.isDirectory()) {
-        for (const l of fs_1.default.readdirSync(path_1.default.resolve(loc))) {
-            walk(path_1.default.join(loc, l), files);
+        try {
+            for (const l of fs_1.default.readdirSync(path_1.default.resolve(loc))) {
+                walk(path_1.default.join(loc, l), files);
+            }
+        }
+        catch (err) {
+            console.error(chalk_1.default.red(err.message));
         }
     }
     else {
@@ -56,23 +61,25 @@ class FileList extends Array {
         }
         const fullpath = path_1.default.resolve(loc);
         const stats = fs_1.default.statSync(fullpath);
-        if (stats.isFile()) {
-            return new file_1.default(loc, stats);
-        }
         if (stats.isDirectory()) {
-            const contents = fs_1.default.readdirSync(fullpath);
-            const files = new FileList();
-            for (const p of contents) {
-                try {
-                    const stats = fs_1.default.statSync(path_1.default.resolve(loc, p));
-                    files.push(new file_1.default(path_1.default.join(loc, p), stats));
+            try {
+                const contents = fs_1.default.readdirSync(fullpath);
+                const files = new FileList();
+                for (const p of contents) {
+                    try {
+                        const stats = fs_1.default.statSync(path_1.default.resolve(loc, p));
+                        files.push(new file_1.default(path_1.default.join(loc, p), stats));
+                    }
+                    catch (err) {
+                    }
                 }
-                catch (err) {
-                }
+                return files;
             }
-            return files;
+            catch (err) {
+                console.error(chalk_1.default.red(err.message));
+            }
         }
-        throw new Error("Not a valid file");
+        return new file_1.default(loc, stats);
     }
     pick(...args) {
         let headers = {};
