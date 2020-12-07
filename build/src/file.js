@@ -9,6 +9,7 @@ const lodash_1 = __importDefault(require("lodash"));
 const moment_1 = __importDefault(require("moment"));
 const child_process_1 = require("child_process");
 const mime_types_1 = require("mime-types");
+const os_1 = require("os");
 class File {
     constructor(base, stats) {
         this.isDeleted = false;
@@ -79,6 +80,10 @@ class File {
     rename(name) {
         this.renamed = name;
         fs_1.default.renameSync(this.base, name);
+        return this;
+    }
+    update(...contents) {
+        fs_1.default.writeFileSync(this.location, contents.join(os_1.EOL));
         return this;
     }
     fetchType(info, stats) {

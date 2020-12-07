@@ -50,8 +50,17 @@ class FileList extends Array {
             latest(a, b) {
                 return b.created.unix() - a.created.unix();
             },
+            oldest(a, b) {
+                return a.created.unix() - b.created.unix();
+            },
             recent(a, b) {
                 return b.modified.unix() - a.modified.unix();
+            },
+            smallest(a, b) {
+                return a.size - b.size;
+            },
+            largest(a, b) {
+                return b.size - a.size;
             }
         };
     }
@@ -82,29 +91,7 @@ class FileList extends Array {
         return new file_1.default(loc, stats);
     }
     pick(...args) {
-        let headers = {};
-        if (typeof args[0] === "string") {
-            for (const arg of args) {
-                if (this.headers[arg]) {
-                    headers[arg] = this.headers[arg];
-                    continue;
-                }
-                headers[arg] = function (key, file) {
-                    return file[key];
-                }.bind(this, arg);
-            }
-            this.headers = headers;
-            return this;
-        }
-        headers = args[0];
-        for (const i in headers) {
-            if (typeof headers[i] === "string") {
-                headers[i] = function (key, file) {
-                    return file[key];
-                }.bind(this, headers[i]);
-            }
-        }
-        this.headers = headers;
+        this.headers = array_1.picker(...args);
         return this;
     }
     sort(compareFn, asc = "asc") {

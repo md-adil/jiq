@@ -106,6 +106,11 @@ export default class File {
         return this;
     }
 
+    update(...contents: string[]) {
+        fs.writeFileSync(this.location, contents.join(EOL));
+        return this;
+    }
+
     fetchType(info: path.ParsedPath, stats: fs.Stats): string {
         if (stats.isDirectory()) {
             return "directory";
