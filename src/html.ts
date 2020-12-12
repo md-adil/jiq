@@ -99,14 +99,29 @@ const format = (key: string, value: string) => {
 const defaultHeaders = (el: cheerio.Cheerio) => {
     const tagName = el.prop('tagName').toLowerCase();
     switch(tagName) {
-        case "script":
         case "img":
             return picker(":id", ":src", ":class");
         case "meta":
-            return picker(":tagName", ":name", ":content");
+            return picker(":tagName", ':charset', ":name", ":content", ':http-equiv');
         case "a":
+            return picker(
+                ':text',
+                ':href',
+                ':download',
+                ':target',
+            );
         case "link":
-            return picker(':id', ':text', ':href', ':class');
+            return picker(
+                ':href',
+                ':rel',
+                ':media',
+                ':sizes',
+                ':title',
+                ':type',
+                ':crossorigin'
+            );
+        case "script":
+            return picker(":src", ':async', ':charset', ':defer', ':type');
         default:
             return picker(':id', ':text', ':class');
     }

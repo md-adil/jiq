@@ -99,14 +99,16 @@ const format = (key, value) => {
 const defaultHeaders = (el) => {
     const tagName = el.prop('tagName').toLowerCase();
     switch (tagName) {
-        case "script":
         case "img":
             return array_1.picker(":id", ":src", ":class");
         case "meta":
-            return array_1.picker(":tagName", ":name", ":content");
+            return array_1.picker(":tagName", ':charset', ":name", ":content", ':http-equiv');
         case "a":
+            return array_1.picker(':text', ':href', ':download', ':target');
         case "link":
-            return array_1.picker(':id', ':text', ':href', ':class');
+            return array_1.picker(':href', ':rel', ':media', ':sizes', ':title', ':type', ':crossorigin');
+        case "script":
+            return array_1.picker(":src", ':async', ':charset', ':defer', ':type');
         default:
             return array_1.picker(':id', ':text', ':class');
     }
