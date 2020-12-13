@@ -38,6 +38,10 @@ export default class File {
         this.date = moment(stats.birthtime);
     }
 
+    get directory() {
+        return path.dirname(this.base);
+    }
+
     get created() {
         return this.date;
     }
@@ -100,7 +104,15 @@ export default class File {
         return stats.size;
     }
 
-    rename(name: string) {
+    rename(...args: string[]) {
+        return this.move(this.directory, args.join('.'));
+    }
+
+    move(...args: string[]) {
+        const name = path.join(...args);
+        if (this.base === name) {
+            return this;
+        }
         this.renamed = name;
         fs.renameSync(this.base, name);
         return this;

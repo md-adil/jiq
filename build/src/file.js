@@ -27,6 +27,9 @@ class File {
         this.size = this.getSize(stats);
         this.date = moment_1.default(stats.birthtime);
     }
+    get directory() {
+        return path_1.default.dirname(this.base);
+    }
     get created() {
         return this.date;
     }
@@ -77,7 +80,14 @@ class File {
         }
         return stats.size;
     }
-    rename(name) {
+    rename(...args) {
+        return this.move(this.directory, args.join('.'));
+    }
+    move(...args) {
+        const name = path_1.default.join(...args);
+        if (this.base === name) {
+            return this;
+        }
         this.renamed = name;
         fs_1.default.renameSync(this.base, name);
         return this;
