@@ -103,6 +103,9 @@ class File {
         if (!stats.isFile()) {
             return "unknown";
         }
+        if (this.ext in File.mimes) {
+            return File.mimes[this.ext];
+        }
         return mime_types_1.lookup(this.location) || this.ext;
     }
     get isHidden() {
@@ -141,3 +144,8 @@ class File {
 }
 exports.default = File;
 File.groups = new Map();
+File.mimes = {
+    ts: 'application/typescript',
+    tsx: 'application/typescriptreact',
+    jsx: 'application/javascriptreact'
+};

@@ -9,6 +9,13 @@ import { humanize } from "./date";
 import { filesize } from "./humanize";
 export default class File {
     static groups = new Map<number, string>();
+
+    static mimes = {
+        ts: 'application/typescript',
+        tsx: 'application/typescriptreact',
+        jsx: 'application/javascriptreact'
+    }
+
     public readonly name: string;
     public readonly ext: string;
     public readonly base: string;
@@ -123,12 +130,15 @@ export default class File {
         return this;
     }
 
-    fetchType(info: path.ParsedPath, stats: fs.Stats): string {
+    private fetchType(info: path.ParsedPath, stats: fs.Stats): string {
         if (stats.isDirectory()) {
             return "directory";
         }
         if (!stats.isFile()) {
             return "unknown";
+        }
+        if (this.ext in File.mimes) {
+            return File.mimes[this.ext as keyof typeof File.mimes]!;
         }
         return lookup(this.location) || this.ext;
     }

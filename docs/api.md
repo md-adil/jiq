@@ -50,6 +50,7 @@ and all other methods and properties of array
 * `isReadable (boolean)` if file can be read by read command
 * `isEmpty (boolean)` file is empty
 * `base (string)`  full path reletive to current directory
+* `directory (string)`  directory name of current file/directory
 * `name (string)`   filename with extension
 * `ext (string)`  extension of file
 * `location (string)`  full absolute path
@@ -74,6 +75,16 @@ and all other methods and properties of array
 
 ```js
 file.rename("users.js")
+```
+
+## move
+* Argunments
+    * filename (string)
+* Return
+    * filename (string)
+
+```js
+file.move("../users.js")
 ```
 
 # date
