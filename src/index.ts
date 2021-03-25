@@ -34,6 +34,7 @@ program
     .option('--yaml', 'tell the program it\'s yaml content')
     .option('--html', 'tell the program it\'s html content')
     .option('--file', 'tell the program it\'s file type')
+    .option('--csv', 'tell the program it\'s csv type')
     .option('--print <format>', 'printer format (table)')
     .option('--save <filename>', 'save output to a file')
     .arguments(`[filename] [query]`)
