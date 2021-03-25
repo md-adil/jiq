@@ -1,6 +1,40 @@
 import _ from "lodash";
-import { EOL } from "os";
-import { filesize } from "./humanize";
+import {EOL} from "os";
+import {filesize} from "./humanize";
+
+export const helpers = {
+    filesize(txt: string) {
+        return filesize(parseInt(txt));
+    },
+    uppercase(txt: string) {
+        return txt.toUpperCase();
+    },
+    lowercase(txt: string) {
+        return txt.toLowerCase();
+    },
+    camelcase(txt: string) {
+        return _.camelCase(txt)
+    },
+    upperfirst(txt: string) {
+        return _.upperFirst(txt);
+    },
+    capitalize(txt: string) {
+        return _.capitalize(txt);
+    },
+    kebabcase(txt: string) {
+        return _.kebabCase(txt);
+    },
+    snakecase(txt: string) {
+        return _.snakeCase(txt);
+    },
+    words(txt: string) {
+        return _.words(txt);
+    },
+    lines(txt: string) {
+        return txt.split(EOL);
+    }
+}
+
 export default function string() {
     Object.defineProperties(Number.prototype, {
         filesize: {
@@ -69,3 +103,4 @@ export default function string() {
         }
     });
 };
+

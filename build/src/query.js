@@ -26,10 +26,11 @@ exports.run = exports.build = void 0;
 const lodash_1 = __importDefault(require("lodash"));
 const moment_1 = __importDefault(require("moment"));
 const array_1 = __importDefault(require("./array"));
-const string_1 = __importDefault(require("./string"));
+const string_1 = __importStar(require("./string"));
 const obj = __importStar(require("./object"));
 require("./date");
 const filesystem_1 = __importDefault(require("./filesystem"));
+const os_1 = __importDefault(require("os"));
 exports.build = (command) => {
     let out = '';
     if (command[0] === '.' || command[0] === '[') {
@@ -53,6 +54,7 @@ exports.build = (command) => {
     }
     return out;
 };
+// type StringHelpers = keyof typeof stringHelpers;
 exports.run = (command, $) => {
     'use string';
     const _ = lodash_1.default;
@@ -64,5 +66,9 @@ exports.run = (command, $) => {
     const values = Object.values;
     const keys = Object.keys;
     const fs = filesystem_1.default();
+    Object.keys(string_1.helpers).forEach((fn) => {
+        global[fn] = string_1.helpers[fn];
+    });
+    const EOL = os_1.default.EOL;
     return eval(command);
 };

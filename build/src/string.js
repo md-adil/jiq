@@ -3,9 +3,42 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.helpers = void 0;
 const lodash_1 = __importDefault(require("lodash"));
 const os_1 = require("os");
 const humanize_1 = require("./humanize");
+exports.helpers = {
+    filesize(txt) {
+        return humanize_1.filesize(parseInt(txt));
+    },
+    uppercase(txt) {
+        return txt.toUpperCase();
+    },
+    lowercase(txt) {
+        return txt.toLowerCase();
+    },
+    camelcase(txt) {
+        return lodash_1.default.camelCase(txt);
+    },
+    upperfirst(txt) {
+        return lodash_1.default.upperFirst(txt);
+    },
+    capitalize(txt) {
+        return lodash_1.default.capitalize(txt);
+    },
+    kebabcase(txt) {
+        return lodash_1.default.kebabCase(txt);
+    },
+    snakecase(txt) {
+        return lodash_1.default.snakeCase(txt);
+    },
+    words(txt) {
+        return lodash_1.default.words(txt);
+    },
+    lines(txt) {
+        return txt.split(os_1.EOL);
+    }
+};
 function string() {
     Object.defineProperties(Number.prototype, {
         filesize: {
