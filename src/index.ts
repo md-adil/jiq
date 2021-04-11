@@ -18,10 +18,11 @@ function main(filename?: string, rawQuery?: string) {
     }
     const commands = query.build(rawQuery);
     io.read(filename, program, (fileType: io.FileType, data) => {
-        if (program.save) {
-            io.write(query.run(commands, data), program.save, fileType);
+        const opts = program.opts();
+        if (opts.save) {
+            io.write(query.run(commands, data), opts.save, fileType);
         } else {
-            printer.print(query.run(commands, data), fileType, program.print);
+            printer.print(query.run(commands, data), fileType, opts.print);
         }
     });
 };
@@ -39,6 +40,9 @@ program
     .option('--save <filename>', 'save output to a file')
     .arguments(`[filename] [query]`)
     .description(`'.name' package.json`)
+    .addHelpText("before", `
+Full documentation https://md-adil.github.io/jiq/
+    `)
     .action((query, filename) => {
         try {
             main(query, filename);

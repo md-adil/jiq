@@ -41,11 +41,12 @@ function main(filename, rawQuery) {
     }
     const commands = query.build(rawQuery);
     io.read(filename, commander_1.program, (fileType, data) => {
-        if (commander_1.program.save) {
-            io.write(query.run(commands, data), commander_1.program.save, fileType);
+        const opts = commander_1.program.opts();
+        if (opts.save) {
+            io.write(query.run(commands, data), opts.save, fileType);
         }
         else {
-            printer.print(query.run(commands, data), fileType, commander_1.program.print);
+            printer.print(query.run(commands, data), fileType, opts.print);
         }
     });
 }
@@ -58,10 +59,14 @@ commander_1.program
     .option('--yaml', 'tell the program it\'s yaml content')
     .option('--html', 'tell the program it\'s html content')
     .option('--file', 'tell the program it\'s file type')
+    .option('--csv', 'tell the program it\'s csv type')
     .option('--print <format>', 'printer format (table)')
     .option('--save <filename>', 'save output to a file')
     .arguments(`[filename] [query]`)
     .description(`'.name' package.json`)
+    .addHelpText("before", `
+Full documentation https://md-adil.github.io/jiq/
+    `)
     .action((query, filename) => {
     try {
         main(query, filename);
