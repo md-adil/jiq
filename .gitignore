@@ -1,5 +1,6 @@
 /node_modules
 /package-lock.json
-/yarn.lock
 /stubs
-/build/tests
+/build
+/dist
+/*.log
