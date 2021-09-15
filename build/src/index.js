@@ -15,7 +15,7 @@ var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (
 var __importStar = (this && this.__importStar) || function (mod) {
     if (mod && mod.__esModule) return mod;
     var result = {};
-    if (mod != null) for (var k in mod) if (k !== "default" && Object.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
     __setModuleDefault(result, mod);
     return result;
 };
@@ -58,6 +58,7 @@ commander_1.program
     .option('--yaml', 'tell the program it\'s yaml content')
     .option('--html', 'tell the program it\'s html content')
     .option('--file', 'tell the program it\'s file type')
+    .option('--csv', 'tell the program it\'s csv type')
     .option('--print <format>', 'printer format (table)')
     .option('--save <filename>', 'save output to a file')
     .arguments(`[filename] [query]`)
