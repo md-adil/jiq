@@ -11,5 +11,5 @@ export default {
         //Let the hashbang be
         allowHashBang: true,
     },
-    plugins: [typescript(), externals()],
+    plugins: [typescript({ tsconfig: "./tsconfig.json" }), externals()],
 };

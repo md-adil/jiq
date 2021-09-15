@@ -1,0 +1,22 @@
+#!/usr/bin/env node
+const { program } = require("commander");
+const { version } = require("./package.json");
+const { main } = require(".");
+program.version(version);
+program
+    .option("--json", "tell the program it's json content")
+    .option("-r, --recursive", "recursive files")
+    .option("--text", "tell the program it's text content")
+    .option("--yaml", "tell the program it's yaml content")
+    .option("--html", "tell the program it's html content")
+    .option("--file", "tell the program it's file type")
+    .option("--csv", "tell the program it's csv type")
+    .option("--print <format>", "printer format (table)")
+    .option("--save <filename>", "save output to a file")
+    .arguments(`[filename] [query]`)
+    .description(`'.name' package.json`)
+    .action((query, filename) => {
+        main(program, query, filename);
+    });
+
+program.parse(process.argv);

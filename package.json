@@ -11,7 +11,7 @@
         "files",
         "directory"
     ],
-    "main": "build/src/index.js",
+    "main": "./dist/index.js",
     "author": {
         "name": "Adil",
         "email": "adil.sudo@gmail.com",
@@ -27,6 +27,7 @@
         "watch": "tsc -w",
         "prebuild": "rm -rf ./dist",
         "build": "rollup -c",
+        "dev": "rollup -c -w",
         "start": "node ./build",
         "test": "mocha ./build/tests/*.spec.js"
     },
@@ -37,7 +38,7 @@
         "@types/lodash": "^4.14.165",
         "@types/mime-types": "^2.1.0",
         "@types/mocha": "^8.0.4",
-        "@types/node": "^14.14.6",
+        "@types/node": "^16.9.1",
         "@types/node-fetch": "^2.5.7",
         "@types/table": "^6.0.0",
         "builtin-modules": "^3.2.0",

@@ -1,3 +1,5 @@
+// @ts-nocheck
+
 import lodash from "lodash";
 import moment from "moment";
 import _ from "lodash";
@@ -8,11 +10,11 @@ import "./date";
 import filesystem from "./filesystem";
 
 export const build = (command: string) => {
-    let out = '';
-    if (command[0] === '.' || command[0] === '[') {
-        command = '$' + command;
+    let out = "";
+    if (command[0] === "." || command[0] === "[") {
+        command = "$" + command;
     }
-    const fns = command.split('|');
+    const fns = command.split("|");
     for (let i = 0; i < fns.length; i++) {
         const fn = fns[i].trim();
         if (!fn) {
@@ -22,17 +24,17 @@ export const build = (command: string) => {
             out = fn;
             continue;
         }
-        if (fn[0] === '.' || fn[0] === '[') {
+        if (fn[0] === "." || fn[0] === "[") {
             out += fn;
             continue;
         }
         out = `${fn}(${out})`;
     }
     return out;
-}
+};
 
-export const run = (command: string, $: any ) => {
-    'use string';
+export const run = (command: string, $: any) => {
+    "use string";
     const _ = lodash;
     const cast = obj.cast;
     const type = obj.type;
@@ -43,4 +45,4 @@ export const run = (command: string, $: any ) => {
     const keys = Object.keys;
     const fs = filesystem();
     return eval(command);
-}
+};

@@ -5,8 +5,6 @@ import moment, { Moment } from "moment";
 import { execSync } from "child_process";
 import { lookup } from "mime-types";
 import { EOL } from "os";
-import { humanize } from "./date";
-import { filesize } from "./humanize";
 export default class File {
     static groups = new Map<number, string>();
     public readonly name: string;
@@ -19,7 +17,7 @@ export default class File {
     public readonly pathInfo: path.ParsedPath;
     public readonly location: string;
     public isDeleted = false;
-    public renamed ?: string;
+    public renamed?: string;
     private _isReadable?: boolean;
 
     constructor(base: string, stats?: fs.Stats) {
@@ -31,7 +29,7 @@ export default class File {
         }
         this.stats = stats;
         this.ext = pathInfo.ext.substr(1);
-        this.name = pathInfo.name
+        this.name = pathInfo.name;
         this.pathInfo = pathInfo;
         this.type = this.fetchType(pathInfo, stats);
         this.size = this.getSize(stats);
@@ -78,7 +76,7 @@ export default class File {
     get user() {
         return execSync(`id -un ${this.stats.uid}`).toString().trim();
     }
-   
+
     get read() {
         if (this.isDirectory) {
             return;
@@ -105,7 +103,7 @@ export default class File {
     }
 
     rename(...args: string[]) {
-        return this.move(this.directory, args.join('.'));
+        return this.move(this.directory, args.join("."));
     }
 
     move(...args: string[]) {
@@ -134,11 +132,11 @@ export default class File {
     }
 
     get isHidden() {
-        return this.name.startsWith('.');
+        return this.name.startsWith(".");
     }
 
     get delete() {
-        fs.unlinkSync(this.base)
+        fs.unlinkSync(this.base);
         this.isDeleted = true;
         return true;
     }
@@ -150,7 +148,7 @@ export default class File {
     get isFile() {
         return this.stats.isFile();
     }
-    
+
     get readdir() {
         return fs.readdirSync(this.base);
     }
@@ -168,7 +166,7 @@ export default class File {
     }
 
     toJSON() {
-        return { ..._.pick(this, [ "base", "type", "size", "date" ]) };
+        return { ..._.pick(this, ["base", "type", "size", "date"]) };
     }
 
     toString() {
