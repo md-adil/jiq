@@ -3,10 +3,13 @@ import * as query from "./query";
 import * as printer from "./printer";
 import * as io from "./io";
 import chalk from "chalk";
+import "./streams/lines";
 
 const isPiped = !process.stdin.isTTY;
-
 export function main(program: Command, filename?: string, rawQuery?: string) {
+    if (program.nothing) {
+        return;
+    }
     if (isPiped) {
         rawQuery = filename || "$";
         filename = undefined;
