@@ -1,13 +1,17 @@
+import { Readable, Stream } from "stream";
+
 import { EOL } from "os";
 import YAML from "yaml";
 import util from "util";
 import type { FileType } from "./io";
 import XML from "fast-xml-parser";
-import { table, getBorderCharacters } from "table";
+import { table, createStream, getBorderCharacters } from "table";
 import File from "./file";
 import FileList from "./file-list";
 import _ from "lodash";
 import jsonToTable, { format } from "./json-to-table";
+import { Directory } from "./directory";
+import { FilePrinter } from "./streams/file-printer";
 
 const validPrinters = ["json", "table", "txt", "yaml", "xml"] as const;
 export type PrinterTypes = typeof validPrinters[number];
@@ -68,7 +72,26 @@ const printFile = (data: FileList | File) => {
     printTable(data);
 };
 
-const printTable = (data: any, isRaw = false) => {
+const printTable = async (data: any, isRaw = false) => {
+    if (data instanceof Directory) {
+        const writer = createStream({
+            border: undefined,
+            columnDefault: {
+                width: 20,
+            },
+            columns: [
+                { width: 50 },
+                {
+                    width: 20,
+                },
+            ],
+            columnCount: Object.keys(data.headers).length,
+        });
+        for await (const row of data.pipe(new FilePrinter(data))) {
+            writer.write(row);
+        }
+        return;
+    }
     if (data && data.toTable) {
         isRaw = true;
         data = data.toTable();

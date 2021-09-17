@@ -40,7 +40,7 @@
         "@types/mocha": "^8.0.4",
         "@types/node": "^16.9.1",
         "@types/node-fetch": "^2.5.7",
-        "@types/table": "^6.0.0",
+        "@types/table": "^6.3.2",
         "builtin-modules": "^3.2.0",
         "chai": "^4.2.0",
         "mocha": "^8.2.1",
@@ -61,7 +61,7 @@
         "mime-types": "^2.1.27",
         "moment": "^2.29.1",
         "node-fetch": "^2.6.1",
-        "table": "^6.0.3",
+        "table": "^6.7.1",
         "yaml": "^1.10.0"
     },
     "bin": "./build/src/index.js"
