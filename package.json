@@ -11,7 +11,7 @@
         "files",
         "directory"
     ],
-    "main": "build/src/index.js",
+    "main": "./dist/index.js",
     "author": {
         "name": "Adil",
         "email": "adil.sudo@gmail.com",
@@ -25,21 +25,29 @@
     "license": "MIT",
     "scripts": {
         "watch": "tsc -w",
-        "build": "rm -r build && tsc",
+        "prebuild": "rm -rf ./dist",
+        "build": "rollup -c",
+        "dev": "rollup -c -w",
         "start": "node ./build",
         "test": "mocha ./build/tests/*.spec.js"
     },
     "devDependencies": {
+        "@rollup/plugin-typescript": "^8.2.5",
         "@types/chai": "^4.2.14",
         "@types/cheerio": "^0.22.22",
         "@types/lodash": "^4.14.165",
         "@types/mime-types": "^2.1.0",
         "@types/mocha": "^8.0.4",
-        "@types/node": "^14.14.6",
+        "@types/node": "^16.9.1",
         "@types/node-fetch": "^2.5.7",
-        "@types/table": "^6.0.0",
+        "@types/table": "^6.3.2",
+        "builtin-modules": "^3.2.0",
         "chai": "^4.2.0",
-        "mocha": "^8.2.1"
+        "mocha": "^8.2.1",
+        "rollup": "^2.56.3",
+        "rollup-plugin-node-externals": "^2.2.0",
+        "tslib": "^2.3.1",
+        "typescript": "^4.4.3"
     },
     "dependencies": {
         "chalk": "^4.1.0",
@@ -53,7 +61,7 @@
         "mime-types": "^2.1.27",
         "moment": "^2.29.1",
         "node-fetch": "^2.6.1",
-        "table": "^6.0.3",
+        "table": "^6.7.1",
         "yaml": "^1.10.0"
     },
     "bin": "./build/src/index.js"
