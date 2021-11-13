@@ -1,4 +1,3 @@
-import { Readable } from "stream";
 import { EOL } from "os";
 import YAML from "yaml";
 import util from "util";
@@ -10,14 +9,14 @@ import FileList from "./file-list";
 import _ from "lodash";
 import jsonToTable, { format } from "./json-to-table";
 
-const validPrinters = [ "json", "table", "txt", "yaml", "xml" ] as const;
+const validPrinters = ["json", "table", "txt", "yaml", "xml"] as const;
 export type PrinterTypes = typeof validPrinters[number];
 
 export function print(data: any, fileType: FileType, printer?: PrinterTypes): void {
     if (printer && !validPrinters.includes(printer)) {
-        throw new Error(`${printer} is invalid printer, valid printers are ( ${validPrinters.join(' / ')} )`);
+        throw new Error(`${printer} is invalid printer, valid printers are ( ${validPrinters.join(" / ")} )`);
     }
-    switch(printer) {
+    switch (printer) {
         case "table":
             return printTable(data);
         case "json":
@@ -32,7 +31,7 @@ export function print(data: any, fileType: FileType, printer?: PrinterTypes): vo
             return printText(data);
     }
 
-    switch(fileType) {
+    switch (fileType) {
         case "csv":
             return printCSV(data);
         case "yaml":
@@ -60,14 +59,14 @@ const printJSON = (data: any) => {
     process.stdout.write(util.inspect(data, false, null, true));
     process.stdout.write(EOL);
     return;
-}
+};
 
 const printFile = (data: FileList | File) => {
     if (data instanceof File) {
         data = new FileList(data);
     }
     printTable(data);
-}
+};
 
 const printTable = (data: any, isRaw = false) => {
     if (data && data.toTable) {
@@ -90,23 +89,23 @@ const printTable = (data: any, isRaw = false) => {
             border: getBorderCharacters("norc"),
             drawHorizontalLine(x, size) {
                 return x == 0 || x === 1 || x == size;
-            }
+            },
         })
     );
     process.stdout.write(EOL);
-}
+};
 
 const printHTML = (data: any) => {
     if (!data || !data.toTable) {
         return console.log(data);
     }
     return printTable(data);
-}
+};
 
 const printXML = (data: any) => {
     const parser = new XML.j2xParser({ ignoreAttributes: false, format: true });
     console.log(parser.parse(data));
-}
+};
 
 function printText(items: string | (string | number)[]) {
     if (["string", "number"].includes(typeof items)) {
@@ -122,11 +121,9 @@ const printCSV = (data: any) => {
         return printTable(data);
     }
     const header = Object.keys(data[0]);
-    const tableData = [ header ];
+    const tableData = [header];
     for (const row of data) {
-        tableData.push(
-            header.map(head => format(row[head]))
-        )
+        tableData.push(header.map((head) => format(row[head])));
     }
     printTable(tableData, true);
-}
+};

@@ -8,8 +8,8 @@ export default {
         format: "cjs",
     },
     acorn: {
-        //Let the hashbang be
-        allowHashBang: true,
+        // Let the hashbang be
+        // allowHashBang: true,
     },
     plugins: [typescript({ tsconfig: "./tsconfig.json" }), externals()],
 };

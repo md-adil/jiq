@@ -8,14 +8,14 @@ export default function html(html: string) {
     Object.defineProperties(root, {
         toJSON: {
             value() {
-                return (root("head").find('meta') as any).toJSON();
-            }
+                return (root("head").find("meta") as any).toJSON();
+            },
         },
         toTable: {
             value() {
-                return (root("head").find('meta') as any).toTable();
-            }
-        }
+                return (root("head").find("meta") as any).toTable();
+            },
+        },
     });
 
     Object.defineProperties(root.prototype, {
@@ -23,7 +23,7 @@ export default function html(html: string) {
             value(...args: any[]) {
                 this.headers = picker(...args);
                 return this;
-            }
+            },
         },
         at: {
             value(...args: string[]) {
@@ -33,7 +33,7 @@ export default function html(html: string) {
                 const data = this.constructor.call(this.constructor, this._makeDomArray(at(this.toArray(), ...args)));
                 data.headers = this.headers;
                 return data;
-            }
+            },
         },
 
         toJSON: {
@@ -42,14 +42,14 @@ export default function html(html: string) {
                     return null;
                 }
                 const headers = this.headers || defaultHeaders(this);
-                return this.map((index: number, el: any) => {
+                return this.map((_index: number, el: any) => {
                     const data: any = {};
                     for (const i in headers) {
                         data[i] = headers[i](defineGetter(root(el)));
                     }
                     return data;
                 }).toArray();
-            }
+            },
         },
         toTable: {
             value() {
@@ -67,21 +67,21 @@ export default function html(html: string) {
                     }
                     rows.push(row);
                 }
-                return [ Object.keys(headers), ...rows ];
-            }
-        }
+                return [Object.keys(headers), ...rows];
+            },
+        },
     });
     return root;
 }
 
 const format = (key: string, value: string) => {
     if (!value) {
-        return '';
+        return "";
     }
-    switch(key) {
+    switch (key) {
         case ":content":
         case ":text":
-            return chalk.blue(_.truncate(value, {length: 100}));
+            return chalk.blue(_.truncate(value, { length: 100 }));
         case ":id":
         case ":tagName":
             return chalk.greenBright(value);
@@ -94,62 +94,50 @@ const format = (key: string, value: string) => {
         default:
             return value;
     }
-}
+};
 
 const defaultHeaders = (el: cheerio.Cheerio) => {
-    const tagName = el.prop('tagName').toLowerCase();
-    switch(tagName) {
+    const tagName = el.prop("tagName").toLowerCase();
+    switch (tagName) {
         case "img":
             return picker(":id", ":src", ":class");
         case "meta":
-            return picker(":tagName", ':charset', ":name", ":content", ':http-equiv');
+            return picker(":tagName", ":charset", ":name", ":content", ":http-equiv");
         case "a":
-            return picker(
-                ':text',
-                ':href',
-                ':download',
-                ':target',
-            );
+            return picker(":text", ":href", ":download", ":target");
         case "link":
-            return picker(
-                ':href',
-                ':rel',
-                ':media',
-                ':sizes',
-                ':title',
-                ':type',
-                ':crossorigin'
-            );
+            return picker(":href", ":rel", ":media", ":sizes", ":title", ":type", ":crossorigin");
         case "script":
-            return picker(":src", ':async', ':charset', ':defer', ':type');
+            return picker(":src", ":async", ":charset", ":defer", ":type");
         default:
-            return picker(':id', ':text', ':class');
+            return picker(":id", ":text", ":class");
     }
-}
+};
 
-const defineGetter = (el: cheerio.Cheerio) => new Proxy(el, {
-    get(target, key) {
-        if (key in target) {
-            return (target as any)[key];
-        }
-        const [ selector, attr ] = (key as string).split(":");
-        const el = selector ? target.find(selector) : target;
-        if (!attr || attr === "text") {
-            return sanitizeText(el.text());
-        }
-        if (attr === "tagName") {
-            return el.prop("tagName");
-        }
-        if (attr === "class") {
-            return el.attr("class")?.split(" ").join(".");
-        }
-        if (attr === "html") {
-            return el.html();
-        }
-        return el.attr(attr);
-    }
-});
+const defineGetter = (el: cheerio.Cheerio) =>
+    new Proxy(el, {
+        get(target, key) {
+            if (key in target) {
+                return (target as any)[key];
+            }
+            const [selector, attr] = (key as string).split(":");
+            const el = selector ? target.find(selector) : target;
+            if (!attr || attr === "text") {
+                return sanitizeText(el.text());
+            }
+            if (attr === "tagName") {
+                return el.prop("tagName");
+            }
+            if (attr === "class") {
+                return el.attr("class")?.split(" ").join(".");
+            }
+            if (attr === "html") {
+                return el.html();
+            }
+            return el.attr(attr);
+        },
+    });
 
 const sanitizeText = (txt: string) => {
     return txt.replace(/(\s+|\t+|\n+|\r+)/g, " ");
-}
+};

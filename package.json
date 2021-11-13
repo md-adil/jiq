@@ -24,7 +24,6 @@
     },
     "license": "MIT",
     "scripts": {
-        "watch": "tsc -w",
         "prebuild": "rm -rf ./dist",
         "build": "rollup -c",
         "dev": "rollup -c -w",
@@ -64,5 +63,5 @@
         "table": "^6.7.1",
         "yaml": "^1.10.0"
     },
-    "bin": "./build/src/index.js"
+    "bin": "./bin"
 }
